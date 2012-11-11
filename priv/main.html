@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Biosensor UI</title>
+        <style type="text/css">
+            #header {
+                border-bottom: 1px solid black;
+                margin-bottom: 7px;
+            }
+            #tab-headers .selected {
+                background-color: #DDD;
+            }
+            .tab-header {
+                border: 1px solid grey;
+                padding: 1px 10px;
+                cursor: pointer;
+            }
+            .tab-body {
+                border: 1px solid grey;
+                padding: 10px;
+            }
+            table {
+                border-spacing: 0px;
+                border-collapse: collapse;
+                margin: 5px;
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 1px 5px;
+            }
+            th {
+                background: #DDD;
+            }
+            svg {
+                background: #EEE;
+            }
+        </style>
+        <script src="jquery.js"></script>
+        <script type="text/javascript">
+            var model = {
+                "params": [
+                    {"name": "p0", "value": "v0", "dim": "m/s"},
+                    {"name": "p1", "value": "v1", "dim": "m/s"},
+                    {"name": "p2", "value": "v2", "dim": "m/s"},
+                    {"name": "p3", "value": "v3", "dim": "m/s"},
+                    {"name": "p4", "value": "v4", "dim": "m/s"},
+                    {"name": "p5", "value": "v5", "dim": "m/s"},
+                    {"name": "p6", "value": "v6", "dim": "m/s"},
+                    {"name": "p7", "value": "v7", "dim": "m/s"},
+                    {"name": "p8", "value": "v8", "dim": "m/s"},
+                    {"name": "p9", "value": "v9", "dim": "m/s"}
+                ]
+            };
+            function activateTab(tabHeader, tabName) {
+                $("#tab-headers .tab-header").removeClass("selected");
+                $(tabHeader).addClass("selected");
+                $("#tab-bodies .tab-body").hide();
+                $("#tab-bodies #" + tabName).show();
+            }
+            function renderParams() {
+                var paramsRows = "";
+                for (var i = 0; i < model.params.length; i++) {
+                    var param = model.params[i];
+                    paramsRows += "<tr>";
+                    paramsRows += "<td>" + param.name + "</td>";
+                    paramsRows += "<td>" + param.value + "</td>";
+                    paramsRows += "<td>" + param.dim + "</td>";
+                    paramsRows += "</tr>";
+                }
+                $("#tab-params table tbody").html(paramsRows);
+            }
+            $(document).ready(function() {
+                $("#tab-headers .tab-header")[1].click();
+                renderParams();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="header">
+            Model: ...
+        </div>
+        <div id="tabs">
+            <div id="tab-headers">
+                <span class="tab-header" onclick="activateTab(this, 'tab-main')">Main</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-geometry')">Geometry</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-reactions')">Reactions</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-params')">Parameters</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-sim')">Simulations</span>
+            </div>
+            <div id="tab-bodies">
+                <div class="tab-body" id="tab-main">
+                    Main
+                </div>
+                <div class="tab-body" id="tab-geometry">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="400" width="400">
+                    </svg>
+                </div>
+                <div class="tab-body" id="tab-reactions">
+                    R
+                </div>
+                <div class="tab-body" id="tab-params">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                                <th>Dimension</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-body" id="tab-sim">
+                    S
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
