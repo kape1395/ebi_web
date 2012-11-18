@@ -20,11 +20,6 @@
                 border: 1px solid grey;
                 padding: 10px;
             }
-            .action {
-                color: blue;
-                cursor: pointer;
-                text-decoration: underline;
-            }
             table {
                 border-spacing: 0px;
                 border-collapse: collapse;
@@ -42,12 +37,6 @@
                 background: #DDD;
             }
 
-            textarea, input {
-                border: 1px solid #BBB;
-            }
-            select {
-                background: transparent;
-            }
 
             svg {
                 border: 1px solid #EEE;
@@ -59,10 +48,10 @@
             rect.subarea:hover {fill: #ddf;}
             rect.bound {fill: #fff; stroke-width: 0px; }
             rect.bound:hover {fill: #ddF;}
-            #cstruct-fig { float: left; }
+            #geom-fig { float: left; }
             /*
-            #cstruct-reac { float:right; }
-            #cstruct-spec { clear:right; float:right; }
+            #geom-reac { float:right; }
+            #geom-spec { clear:right; float:right; }
             */
         </style>
         <script src="jquery.js"></script>
@@ -83,12 +72,10 @@
                     {"name": "R3"}
                 ],
                 "compartments": [
-                    {"name": "Solution",                "type": "cons", "size": "1"},
-                    {"name": "Nernst diffusion layer",  "type": "diff", "size": "0.150"},
-                    {"name": "Perforated membrane",     "type": "diff", "size": "0.100"},
-                    {"name": "Enzyme",                  "type": "cnts", "size": "0.010"},
-                    {"name": "Selective membrane",      "type": "sele", "size": "0.004"},
-                    {"name": "Electrode",               "type": "soel", "size": "0.001"}
+                    {"name": "Nernst diffusion layer"},
+                    {"name": "Perforated membrane"},
+                    {"name": "Enzyme"},
+                    {"name": "Selective membrane"}
                 ],
                 "params": [
                     {"name": "p0", "value": "v0", "dim": "m/s"},
@@ -121,7 +108,7 @@
                 }
                 $("#tab-params table tbody").html(paramsRows);
             }
-            function renderCellStruct() {
+            function renderGeometry() {
                 var sizeX = 400;        // image size
                 var sizeY = 400;        // image size
                 var axisOffset = 30;    // axis offset
@@ -201,9 +188,9 @@
                     }
                 }
                 img += "</svg>";
-                $("#cstruct-fig").html(img);
+                $("#geom-fig").html(img);
             }
-            function renderCStructCompartments() {
+            function renderGeomCompartments() {
                 var rows = "";
                 for (var i = 0; i < model.compartments.length; i++) {
                     var comp = model.compartments[i];
@@ -211,9 +198,9 @@
                     rows += "<td>" + comp.name + "</td>";
                     rows += "</tr>";
                 }
-                $("#cstruct-comp tbody").html(rows);
+                $("#geom-comp tbody").html(rows);
             }
-            function renderCStructSpecies() {
+            function renderGeomSpecies() {
                 var rows = "";
                 for (var i = 0; i < model.species.length; i++) {
                     var spec = model.species[i];
@@ -223,9 +210,9 @@
                     rows += "<td><input type='text' value='0'/></td>";
                     rows += "</tr>";
                 }
-                $("#cstruct-spec tbody").html(rows);
+                $("#geom-spec tbody").html(rows);
             }
-            function renderCStructReactions() {
+            function renderGeomReactions() {
                 var rows = "";
                 for (var i = 0; i < model.reactions.length; i++) {
                     var reac = model.reactions[i];
@@ -233,65 +220,15 @@
                     rows += "<td>" + reac.name + "</td>";
                     rows += "</tr>";
                 }
-                $("#cstruct-reac tbody").html(rows);
-            }
-            function renderBiosensorCompType(type) {
-                function sel(type1, type2) {
-                    return " value='" + type1 + "' " + ((type1 == type2) ? " selected='selected'" : "");
-                }
-                var types = "<select>";
-                types += "<option" + sel("cons", type) + ">Constant concentrations</option>";
-                types += "<option" + sel("diff", type) + ">Diffusive medium</option>";
-                types += "<option" + sel("sele", type) + ">Selective membrane</option>";
-                types += "<option" + sel("perf", type) + ">Perforated membrane</option>";
-                types += "<option" + sel("cnts", type) + ">CNT mesh</option>";
-                types += "<option" + sel("soel", type) + ">Solid electrode</option>";
-                types += "</select>";
-                return types;
-            }
-            function renderBiosensorStruct() {
-                $("#bstruct-comps thead tr:nth-child(1) th:nth-child(4)").attr("colspan", model.reactions.length);
-                $("#bstruct-comps thead tr:nth-child(1) th:nth-child(5)").attr("colspan", model.species.length);
-
-                var hdrs = "";
-                for (var r = 0; r < model.reactions.length; r++) {
-                    hdrs += "<th>" + model.reactions[r].name + "</th>";
-                }
-                for (var r = 0; r < model.species.length; r++) {
-                    hdrs += "<th>" + model.species[r].name + "</th>";
-                }
-                $("#bstruct-comps thead tr:nth-child(2)").html(hdrs);
-
-                var rows = "";
-                for (var i = 0; i < model.compartments.length; i++) {
-                    var comp = model.compartments[i];
-                    rows += "<tr>";
-                    rows += "<td><input type='text' value='" + comp.name + "' /></td>";
-                    rows += "<td>" + renderBiosensorCompType(comp.type) +"</td>";
-                    rows += "<td><input type='text' style='width: 50px' value='" + comp.size +"'/></td>";
-                    for (var r = 0; r < model.reactions.length; r++) {
-                        rows += "<td><input type='checkbox' value='false' />" + "</td>";
-                    }
-                    for (var r = 0; r < model.species.length; r++) {
-                        rows += "<td><input type='text' style='width: 40px' value='D1' />" + "</td>";
-                    }
-                    rows += "<td>" + "</td>";
-                    rows += "</tr>";
-                }
-                $("#bstruct-comps tbody").html(rows);
-            }
-            function addCompartment() {
-                model.compartments.push({"name": "New Compartment", "type": "diff"});
-                renderBiosensorStruct();
+                $("#geom-reac tbody").html(rows);
             }
             $(document).ready(function() {
                 $("#tab-headers .tab-header")[1].click();
                 renderParams();
-                renderBiosensorStruct();
-                renderCellStruct();
-                renderCStructCompartments();
-                renderCStructSpecies();
-                renderCStructReactions();
+                renderGeometry();
+                renderGeomCompartments();
+                renderGeomSpecies();
+                renderGeomReactions();
             });
         </script>
     </head>
@@ -302,8 +239,7 @@
         <div id="tabs">
             <div id="tab-headers">
                 <span class="tab-header" onclick="activateTab(this, 'tab-main')">Main</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-bstruct')">Biosensor structure</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-cstruct')">Biosensor cell structure</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-geometry')">Geometry</span>
                 <span class="tab-header" onclick="activateTab(this, 'tab-reactions')">Reactions</span>
                 <span class="tab-header" onclick="activateTab(this, 'tab-params')">Parameters</span>
                 <span class="tab-header" onclick="activateTab(this, 'tab-sim')">Simulations</span>
@@ -312,38 +248,14 @@
                 <div class="tab-body" id="tab-main">
                     Main
                 </div>
-                <div class="tab-body" id="tab-bstruct">
-                    <div id="bstruct-fig">
-                    </div>
-                    <table id="bstruct-comps">
-                        <caption>Compartments</caption>
-                        <thead>
-                            <tr>
-                                <th rowspan="2">Name</th>
-                                <th rowspan="2">Type</th>
-                                <th rowspan="2">Thickness</th>
-                                <th>Reaction</th>
-                                <th>Diffusion</th>
-                                <th rowspan="2"><span onclick="addCompartment()" class="action">Add</span></th>
-                            </tr>
-                            <tr>
-                                <th>...</th>
-                                <th>..</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <div style="clear:both;"></div>
-                </div>
-                <div class="tab-body" id="tab-cstruct">
-                    <div id="cstruct-fig"></div>
-                    <table id="cstruct-comp">
+                <div class="tab-body" id="tab-geometry">
+                    <div id="geom-fig"></div>
+                    <table id="geom-comp">
                         <caption>Compartments</caption>
                         <thead><tr><th>Name</th></tr></thead>
                         <tbody></tbody>
                     </table>
-                    <table id="cstruct-spec">
+                    <table id="geom-spec">
                         <caption>Species</caption>
                         <thead>
                             <tr>
@@ -354,7 +266,7 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <table id="cstruct-reac">
+                    <table id="geom-reac">
                         <caption>Reactions</caption>
                         <thead><tr><th>Name</th></tr></thead>
                         <tbody></tbody>
