@@ -91,294 +91,220 @@
                     {"name": "Electrode",               "type": "soel", "size": "0.001"}
                 ],
                 "params": [
-                    {"name": "p0", "value": "v0", "dim": "m/s"},
-                    {"name": "p1", "value": "v1", "dim": "m/s"},
-                    {"name": "p2", "value": "v2", "dim": "m/s"},
-                    {"name": "p3", "value": "v3", "dim": "m/s"},
-                    {"name": "p4", "value": "v4", "dim": "m/s"},
-                    {"name": "p5", "value": "v5", "dim": "m/s"},
-                    {"name": "p6", "value": "v6", "dim": "m/s"},
-                    {"name": "p7", "value": "v7", "dim": "m/s"},
-                    {"name": "p8", "value": "v8", "dim": "m/s"},
-                    {"name": "p9", "value": "v9", "dim": "m/s"}
+                    {"name": "d1", "value": "0.001", "dim": "um"},
+                    {"name": "d2", "value": "0.004", "dim": "um"},
+                    {"name": "d3", "value": "0.010", "dim": "um"},
+                    {"name": "d4", "value": "0.150", "dim": "um"},
+                    {"name": "D1", "value": "3E-10", "dim": "m^2 s^-1"},
+                    {"name": "D2", "value": "3E-10", "dim": "m^2 s^-1"},
+                    {"name": "D3", "value": "3E-10", "dim": "m^2 s^-1"},
+                    {"name": "D4", "value": "6E-10", "dim": "m^2 s^-1"}
                 ]
             };
+            var sets = [
+                {"name": "Base", "params": [
+                    {"name": "d1", "value": "0.001"},
+                    {"name": "d2", "value": "0.004"},
+                    {"name": "d3", "value": "0.010"},
+                    {"name": "d4", "value": "0.150"},
+                    {"name": "D1", "value": "3E-10"},
+                    {"name": "D2", "value": "3E-10"},
+                    {"name": "D3", "value": "3E-10"},
+                    {"name": "D4", "value": "6E-10"}
+                ]},
+                {"name": "Low diff", "params": [
+                    {"name": "d1", "value": "0.001"},
+                    {"name": "d2", "value": "0.004"},
+                    {"name": "d3", "value": "0.010"},
+                    {"name": "d4", "value": "0.150"},
+                    {"name": "D1", "value": "3E-10"},
+                    {"name": "D2", "value": "3E-10"},
+                    {"name": "D3", "value": "3E-10"},
+                    {"name": "D4", "value": "6E-10"}
+                ]}
+            ];
             function activateTab(tabHeader, tabName) {
                 $("#tab-headers .tab-header").removeClass("selected");
                 $(tabHeader).addClass("selected");
                 $("#tab-bodies .tab-body").hide();
                 $("#tab-bodies #" + tabName).show();
             }
-            function renderParams() {
-                var paramsRows = "";
+            function renderParamSets() {
+                var head = "<th colspan='2'>Parameter</th>";
+                for (var s = 0; s < sets.length; s++) {
+                    head += "<th rowspan='2'>" + sets[s].name + "</th>";
+                }
+                var body = "";
                 for (var i = 0; i < model.params.length; i++) {
                     var param = model.params[i];
-                    paramsRows += "<tr>";
-                    paramsRows += "<td>" + param.name + "</td>";
-                    paramsRows += "<td>" + param.value + "</td>";
-                    paramsRows += "<td>" + param.dim + "</td>";
-                    paramsRows += "</tr>";
-                }
-                $("#tab-params table tbody").html(paramsRows);
-            }
-            function renderCellStruct() {
-                var sizeX = 400;        // image size
-                var sizeY = 400;        // image size
-                var axisOffset = 30;    // axis offset
-                var maxX = sizeX - 2 * axisOffset;
-                var maxY = sizeY - 2 * axisOffset;
-                var x = function (x) { return axisOffset + x; };
-                var y = function (y) { return sizeY - axisOffset - y; };
-                var img = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='" + sizeX + "' width='" + sizeY + "'>";
-                img += "<defs>";
-                img += "  <marker id='Triangle' viewBox='0 0 10 10' refX='10' refY='5' markerUnits='strokeWidth' markerWidth='10' markerHeight='5' orient='auto'>";
-                img += "    <path d='M 0 0 L 10 5 L 0 10 L 6 5 z' />";
-                img += "  </marker>";
-                img += "</defs>";
-                img += "<line class='axis' x1='" + x(0) + "' y1='" + y(0) + "' x2='" + x(maxX) + "' y2='" + y(0)    + "' marker-end='url(#Triangle)'/>";
-                img += "<line class='axis' x1='" + x(0) + "' y1='" + y(0) + "' x2='" + x(0)    + "' y2='" + y(maxY) + "' marker-end='url(#Triangle)'/>";
-                img += "<text class='axis' x='" + x(-15) + "' y='" + y(-15) + "'>0</text>"
-                if (model.axes.length > 0) {
-                    var axis = model.axes[0];
-                    img += "<text class='axis' x='" + x(maxX) + "' y='" + y(-15) + "'>" + axis.name + "</text>"
-                    if (axis.points.length > 1) {
-                        var step = maxX * 0.9 / (axis.points.length - 1);
-                        for (var i = 0; i < axis.points.length; i++) {
-                            img += "<line class='axis' x1='" + x(step * i) + "' y1='" + y(5) + "' x2='" + x(step * i) + "' y2='" + y(-5) + "'/>";
-                            img += "<text class='axis' x='" + x(step * i) + "' y='" + y(-20) + "'>" + axis.points[i] + "</text>";
-                        }
+                    body += "<tr>";
+                    body += "<td>" + param.name + "</td>";
+                    body += "<td>" + param.dim + "</td>";
+                    for (var s = 0; s < sets.length; s++) {
+                        body += "<td><input value='" + sets[s].params[i].value + "' style='width:80px'/></td>";
                     }
+                    body += "</tr>";
                 }
-                if (model.axes.length > 1) {
-                    var axis = model.axes[1];
-                    img += "<text class='axis' x='" + x(-15) + "' y='" + y(maxY) + "'>" + axis.name + "</text>"
-                    if (axis.points.length > 1) {
-                        var step = maxY * 0.9 / (axis.points.length - 1);
-                        for (var i = 0; i < axis.points.length; i++) {
-                            img += "<line class='axis' x1='" + x(5) + "' y1='" + y(step * i) + "' x2='" + x(-5) + "' y2='" + y(step * i) + "'/>";
-                            img += "<text class='axis' x='" + x(-25) + "' y='" + y(step * i) + "'>" + axis.points[i] + "</text>";
-                        }
-                    }
-                }
-                for (var j = 0; j < model.axes[1].points.length - 1; j++) {
-                    for (var i = 0; i < model.axes[0].points.length - 1; i++) {
-                        var stepX = maxX * 0.9 / (model.axes[0].points.length - 1);
-                        var stepY = maxY * 0.9 / (model.axes[1].points.length - 1);
-                        img += "<rect class='subarea' ";
-                        img += "x='" + x(stepX * i + 5) + "' "
-                        img += "y='" + y(stepY * (j+1) - 5) + "'"
-                        img += "width='" + (stepX -10) + "'"
-                        img += "height='" + (stepY -10) + "'"
-                        img += "/>";
-                        if (j == 0) {
-                            img += "<rect class='bound' ";
-                            img += "x='" + x(stepX * i + 5) + "' "
-                            img += "y='" + y(stepY * (-1+1) + 5) + "'"
-                            img += "width='" + (stepX -10) + "'"
-                            img += "height='" + (4) + "'"
-                            img += "/>";
-                        }
-                        img += "<rect class='bound' ";
-                        img += "x='" + x(stepX * i + 5) + "' "
-                        img += "y='" + y(stepY * (j+1) + 5) + "'"
-                        img += "width='" + (stepX -10) + "'"
-                        img += "height='" + (10) + "'"
-                        img += "/>";
-                        if (i == 0) {
-                            img += "<rect class='bound' ";
-                            img += "x='" + x(stepX * (-1+1) + 1) + "'"
-                            img += "y='" + y(stepY * (j+1) - 5) + "' "
-                            img += "width='" + (4) + "'"
-                            img += "height='" + (stepY -10) + "'"
-                            img += "/>";
-                        }
-                        img += "<rect class='bound' ";
-                        img += "x='" + x(stepX * (i+1) - 5) + "'"
-                        img += "y='" + y(stepY * (j+1) - 5) + "' "
-                        img += "width='" + (10) + "'"
-                        img += "height='" + (stepY -10) + "'"
-                        img += "/>";
-                    }
-                }
-                img += "</svg>";
-                $("#cstruct-fig").html(img);
+                $("#tab-sets table thead tr:nth-child(1)").html(head);
+                $("#tab-sets table tbody").html(body);
             }
-            function renderCStructCompartments() {
-                var rows = "";
-                for (var i = 0; i < model.compartments.length; i++) {
-                    var comp = model.compartments[i];
-                    rows += "<tr>";
-                    rows += "<td>" + comp.name + "</td>";
-                    rows += "</tr>";
-                }
-                $("#cstruct-comp tbody").html(rows);
-            }
-            function renderCStructSpecies() {
-                var rows = "";
-                for (var i = 0; i < model.species.length; i++) {
-                    var spec = model.species[i];
-                    rows += "<tr>";
-                    rows += "<td>" + spec.name + "</td>";
-                    rows += "<td><input type='text' value='0'/></td>";
-                    rows += "<td><input type='text' value='0'/></td>";
-                    rows += "</tr>";
-                }
-                $("#cstruct-spec tbody").html(rows);
-            }
-            function renderCStructReactions() {
-                var rows = "";
-                for (var i = 0; i < model.reactions.length; i++) {
-                    var reac = model.reactions[i];
-                    rows += "<tr>";
-                    rows += "<td>" + reac.name + "</td>";
-                    rows += "</tr>";
-                }
-                $("#cstruct-reac tbody").html(rows);
-            }
-            function renderBiosensorCompType(type) {
-                function sel(type1, type2) {
-                    return " value='" + type1 + "' " + ((type1 == type2) ? " selected='selected'" : "");
-                }
-                var types = "<select>";
-                types += "<option" + sel("cons", type) + ">Constant concentrations</option>";
-                types += "<option" + sel("diff", type) + ">Diffusive medium</option>";
-                types += "<option" + sel("sele", type) + ">Selective membrane</option>";
-                types += "<option" + sel("perf", type) + ">Perforated membrane</option>";
-                types += "<option" + sel("cnts", type) + ">CNT mesh</option>";
-                types += "<option" + sel("soel", type) + ">Solid electrode</option>";
-                types += "</select>";
-                return types;
-            }
-            function renderBiosensorStruct() {
-                $("#bstruct-comps thead tr:nth-child(1) th:nth-child(4)").attr("colspan", model.reactions.length);
-                $("#bstruct-comps thead tr:nth-child(1) th:nth-child(5)").attr("colspan", model.species.length);
-
-                var hdrs = "";
-                for (var r = 0; r < model.reactions.length; r++) {
-                    hdrs += "<th>" + model.reactions[r].name + "</th>";
-                }
-                for (var r = 0; r < model.species.length; r++) {
-                    hdrs += "<th>" + model.species[r].name + "</th>";
-                }
-                $("#bstruct-comps thead tr:nth-child(2)").html(hdrs);
-
-                var rows = "";
-                for (var i = 0; i < model.compartments.length; i++) {
-                    var comp = model.compartments[i];
-                    rows += "<tr>";
-                    rows += "<td><input type='text' value='" + comp.name + "' /></td>";
-                    rows += "<td>" + renderBiosensorCompType(comp.type) +"</td>";
-                    rows += "<td><input type='text' style='width: 50px' value='" + comp.size +"'/></td>";
-                    for (var r = 0; r < model.reactions.length; r++) {
-                        rows += "<td><input type='checkbox' value='false' />" + "</td>";
-                    }
-                    for (var r = 0; r < model.species.length; r++) {
-                        rows += "<td><input type='text' style='width: 40px' value='D1' />" + "</td>";
-                    }
-                    rows += "<td>" + "</td>";
-                    rows += "</tr>";
-                }
-                $("#bstruct-comps tbody").html(rows);
-            }
-            function addCompartment() {
-                model.compartments.push({"name": "New Compartment", "type": "diff"});
-                renderBiosensorStruct();
+            function addParamSet() {
+                var first = sets[0];
+                first.name = "New";
+                sets.push(first);
+                renderParamSets();
             }
             $(document).ready(function() {
-                $("#tab-headers .tab-header")[1].click();
-                renderParams();
-                renderBiosensorStruct();
-                renderCellStruct();
-                renderCStructCompartments();
-                renderCStructSpecies();
-                renderCStructReactions();
+                $("#tab-headers .tab-header")[0].click();
+                renderParamSets();
             });
         </script>
     </head>
     <body>
         <div id="header">
-            Model: ...
+            Model: Biosensor with a carbon nanotube electrode
         </div>
         <div id="tabs">
             <div id="tab-headers">
-                <span class="tab-header" onclick="activateTab(this, 'tab-main')">Main</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-bstruct')">Biosensor structure</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-cstruct')">Biosensor cell structure</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-reactions')">Reactions</span>
-                <span class="tab-header" onclick="activateTab(this, 'tab-params')">Parameters</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-sets')">Parameter sets</span>
+                <span class="tab-header" onclick="activateTab(this, 'tab-ranges')">Ranges</span>
                 <span class="tab-header" onclick="activateTab(this, 'tab-sim')">Simulations</span>
             </div>
             <div id="tab-bodies">
-                <div class="tab-body" id="tab-main">
-                    Main
-                </div>
-                <div class="tab-body" id="tab-bstruct">
-                    <div id="bstruct-fig">
-                    </div>
-                    <table id="bstruct-comps">
-                        <caption>Compartments</caption>
+                <div class="tab-body" id="tab-sets">
+                    <table>
+                        <caption>Parameter sets (<span onClick="addParamSet()" class="action">add</span>)</caption>
                         <thead>
-                            <tr>
-                                <th rowspan="2">Name</th>
-                                <th rowspan="2">Type</th>
-                                <th rowspan="2">Thickness</th>
-                                <th>Reaction</th>
-                                <th>Diffusion</th>
-                                <th rowspan="2"><span onclick="addCompartment()" class="action">Add</span></th>
-                            </tr>
-                            <tr>
-                                <th>...</th>
-                                <th>..</th>
-                            </tr>
+                            <tr></tr>
+                            <tr><th>Name</th><th>Dimension</th></tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-                    <div style="clear:both;"></div>
                 </div>
-                <div class="tab-body" id="tab-cstruct">
-                    <div id="cstruct-fig"></div>
-                    <table id="cstruct-comp">
-                        <caption>Compartments</caption>
-                        <thead><tr><th>Name</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                    <table id="cstruct-spec">
-                        <caption>Species</caption>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Diffusion coefficient</th>
-                                <th>Initial concentration</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    <table id="cstruct-reac">
-                        <caption>Reactions</caption>
-                        <thead><tr><th>Name</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                    <div style="clear:both;"></div>
-                </div>
-                <div class="tab-body" id="tab-reactions">
-                    R
-                </div>
-                <div class="tab-body" id="tab-params">
+                <div class="tab-body" id="tab-ranges">
                     <table>
+                        <caption>Parameter ranges (<span class="action">add</span>)</caption>
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Value</th>
-                                <th>Dimension</th>
-                            </tr>
+                            <tr><th>Parameter</th><th>Range name</th><th>Definition</th></tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>d1</td>
+                                <td>d1_linear</td>
+                                <td>Enumeration: <input style="width:500px;" value="0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008"/></td>
+                            </tr>
+                            <tr>
+                                <td>d1</td>
+                                <td>d1_exp</td>
+                                <td>Enumeration: <input style="width:500px;" value="0.00001, 0.0001, 0.001, 0.01, 0.1, 1"/></td>
+                            </tr>
+                            <tr>
+                                <td>k2</td>
+                                <td>k2_exp</td>
+                                <td>
+                                    Exponent:
+                                    from: <input value="1"/>
+                                    to: <input value="100"/>
+                                    by: <input value="2"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>D3</td>
+                                <td>D3_exp</td>
+                                <td>
+                                    Linear:
+                                    from: <input value="1E-10"/>
+                                    to: <input value="1E-9"/>
+                                    by: <input value="1E-10"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="tab-body" id="tab-sim">
-                    S
+                    <table>
+                        <caption>Parameter ranges (<span class="action">add</span>)</caption>
+                        <thead>
+                            <tr><th>Simulation</th><th>Base configuration</th><th>Dimensions</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input value='Membrane thincness'/></td>
+                                <td>
+                                    <select>
+                                        <option>Base</option>
+                                        <option selected="selected">Low Diff</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option selected="selected">d1_exp</option>
+                                        <option>k2_exp</option>
+                                        <option>D3_exp</option>
+                                    </select>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option>d1_exp</option>
+                                        <option>k2_exp</option>
+                                        <option>D3_exp</option>
+                                    </select>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option>d1_exp</option>
+                                        <option>k2_exp</option>
+                                        <option>D3_exp</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span class="action">Submit</span>
+                                    <span class="action">Download results</span>
+                                    <span class="action">Graph</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input value='D3 vs k2'/></td>
+                                <td>
+                                    <select>
+                                        <option selected="selected">Base</option>
+                                        <option>Low Diff</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option >d1_exp</option>
+                                        <option>k2_exp</option>
+                                        <option selected="selected">D3_exp</option>
+                                    </select>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option>d1_exp</option>
+                                        <option selected="selected">k2_exp</option>
+                                        <option>D3_exp</option>
+                                    </select>
+                                    <select>
+                                        <option>--</option>
+                                        <option>d1_linear</option>
+                                        <option>d1_exp</option>
+                                        <option>k2_exp</option>
+                                        <option>D3_exp</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span class="action">Submit</span>
+                                    <span class="action">Download results</span>
+                                    <span class="action">Graph</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
