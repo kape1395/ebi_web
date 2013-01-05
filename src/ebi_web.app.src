@@ -1,0 +1,7 @@
+{application, ebi_web, [
+    {description, "EBI: HTTP based API and UI"},
+    {vsn, "1.0.0"},
+    {registered, []},
+    {applications, [kernel, stdlib, sasl, yaws, ebi_core]},
+    {mod, {ebi_web_app, []}}
+]}.

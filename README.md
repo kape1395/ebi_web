@@ -37,21 +37,47 @@ Resources
 ---------
 
 `biosensor`
-:   ...
+:   A list of `biosensor/{BiosensorId}`.
+
 
 `biosensor/{BiosensorId}`
 :   ...
 
+        {
+            id,
+            ref,
+            name,
+            desc
+        }
+
 `biosensor/{BiosensorId}/model`
-:   ...
+:   Same as the `model`, just filtered by BiosensorId.
 
 `model`
 :   ...
 
+        {
+            id,
+            ref,
+            name,
+            desc
+        }
+
 `model/{ModelId}`
 :   ...
 
+        {
+            id,
+            ref,
+            name,
+            desc
+        }
+
+    Links:
+      * <biosensor>; ref=biosensor
+
 `simulation/{SimulationId}`
 :   ...
+
 
 
