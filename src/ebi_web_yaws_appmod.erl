@@ -40,8 +40,31 @@ handle_request([?API_ROOT], 'GET', _Arg) ->
     [
         {status, 200},
         {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
-    ].
+    ];
 
+handle_request([?API_ROOT, "biosensor"], 'GET', _Arg) ->
+    [
+        {status, 200},
+        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+    ];
+
+handle_request([?API_ROOT, "biosensor", _BiosensorId], 'GET', _Arg) ->
+    [
+        {status, 200},
+        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+    ];
+
+handle_request([?API_ROOT, "model"], 'GET', _Arg) ->
+    [
+        {status, 200},
+        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+    ];
+
+handle_request([?API_ROOT, "model", _ModelId], 'GET', _Arg) ->
+    [
+        {status, 200},
+        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+    ].
 
 
 %% =============================================================================

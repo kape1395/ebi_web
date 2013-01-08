@@ -36,8 +36,8 @@
                         <div class="row">
                             <div class="well span4 offset1">
                                 <h3>
-                                    <a href="#" onclick="ebi_model_show()">View</a> or
-                                    <a href="#">create</a> models
+                                    <a href="#model-list">View</a> or
+                                    <a href="#model-new">create</a> models
                                 </h3>
                             </div>
                             <div class="well span4 offset1">
@@ -48,7 +48,114 @@
                         </div>
                     </div>
                     <div id="models" class="tab-pane">
-                        <div class="well">models</div>
+                        <div id="model-new">
+                            <ul class="breadcrumb">
+                                <li class="active">New <span class="divider">|</span></li>
+                                <li><a href="#model-list">List</a></li>
+                            </ul>
+                            <form class="form-inline">
+                                <fieldset>
+                                    <legend>Create new biosensor model</legend>
+                                    <input type="text" placeholder="Model name" />
+                                    <button type="button" class="btn">Create</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <div id="model-list">
+                            <ul class="breadcrumb">
+                                <li><a href="#model-new">New</a> <span class="divider">|</span></li>
+                                <li class="active">List</li>
+                            </ul>
+                            <table id="model-list-table" class="table table-hover table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Biosensor</th>
+                                        <th>Model name <span class='id-text'>(id)</span></th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div id="model-details">
+                            <ul class="breadcrumb">
+                                <li><a href="#model-new">New</a> <span class="divider">|</span></li>
+                                <li><a href="#model-list">List</a> <span class="divider">|</span></li>
+                                <li class="active">Model: alskjdala asdla;a;da asd</li>
+                            </ul>
+                            <table id="model-reactions" class="table">
+                                <caption>Reactions</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Name</th>
+                                        <th>Definition</th>
+                                        <th>Rate equation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Simple</td>
+                                        <td>R_1</td>
+                                        <td>
+                                            <div class="model-reaction-simple">
+                                                <input type="text" placeholder="Reagents" title="Example: 2 S1 + S2" class="reagent"/>
+                                                <input type="text" placeholder="Products" title="Example: P" class="product"/>
+                                                <div class="rate">
+                                                    <input type="text" placeholder="Rate const" title="Example: k1"/>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                                        <defs>
+                                                            <marker id="Triangle" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="5" orient="auto">
+                                                               <path d="M 0 0 L 10 5 L 0 10 L 7 5 z" style="fill:#999;stroke:#999;"/>
+                                                            </marker>
+                                                        </defs>
+                                                        <line x1="5" y1="5" x2="95%" y2="5" style="stroke:#999;stroke-width:3" marker-end="url(#Triangle)"/>
+                                                    </svg>
+                                                </div>
+
+                                                <div class="clearfix"></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                                <mrow>
+                                                    <mfrac>
+                                                        <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
+                                                        <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
+                                                    </mfrac>
+                                                    <mo>=</mo>
+                                                </mrow>
+                                            </math>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Michaelis Menten</td>
+                                        <td>R_2</td>
+                                        <td>
+                                            <div class="model-reaction-michaelis">
+                                                Substrate: <input type="text" placeholder="Substrate" title="Example: S1"/>
+                                                Product: <input type="text" placeholder="Product" title="Example: P1"/>
+                                                V_max: <input type="text" placeholder="V_max" title="Example: k1"/>
+                                                K_M: <input type="text" placeholder="K_M" title="Example: k2"/>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                                <mrow>
+                                                    <mfrac>
+                                                        <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
+                                                        <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
+                                                    </mfrac>
+                                                    <mo>=</mo>
+                                                </mrow>
+                                            </math>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="clearfix"></div>
+                        </div>
                     </div>
                     <div id="simulations" class="tab-pane">
                         <div class="well">simulations</div>

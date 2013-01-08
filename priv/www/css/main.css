@@ -97,11 +97,43 @@ textarea {
     text-align: right;
 }
 
+span.id-text {
+    color: #999;
+}
 
 
-
-
-
+div.model-reaction-simple {
+    width: 600px;
+}
+div.model-reaction-simple input.reagent {
+    width: 200px;
+    float:left;
+    margin-top: 20px;
+}
+div.model-reaction-simple input.product {
+    width: 200px;
+    float:right;
+    margin-top: 20px;
+}
+div.model-reaction-simple div.rate {
+    width: 160px;
+    margin: 0px auto;
+}
+div.model-reaction-simple div.rate input {
+    width: 50%;
+    margin: 1px auto;
+    display: block;
+}
+div.model-reaction-simple div.rate svg {
+    width: 95%;
+    height: 10px;
+    margin: 5px auto;
+    display: block;
+}
+div.model-reaction-michaelis input {
+    width: 70px;
+    margin-right: 10px;
+}
 
 
 
