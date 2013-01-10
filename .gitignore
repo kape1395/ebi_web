@@ -4,5 +4,6 @@
 .ditz-config
 deps/
 ebin/
+ebin-erlide/
 logs/
 rel/ebi/

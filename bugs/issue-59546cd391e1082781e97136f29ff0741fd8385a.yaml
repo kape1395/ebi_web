@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: "\"New Model\" should be separated from \"Edit model\" - till first save."
+desc: ""
+type: :task
+component: ebi_web
+release: 
+reporter: Karolis Petrauskas <k.petrauskas@gmail.com>
+status: :unstarted
+disposition: 
+creation_time: 2013-01-08 21:35:58.530980 Z
+references: []
+
+id: 59546cd391e1082781e97136f29ff0741fd8385a
+log_events: 
+- - 2013-01-08 21:35:59.378856 Z
+  - Karolis Petrauskas <k.petrauskas@gmail.com>
+  - created
+  - ""

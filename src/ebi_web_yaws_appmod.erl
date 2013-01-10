@@ -2,6 +2,7 @@
 -compile([{parse_transform, lager_transform}]).
 -export([out/1]).
 -include_lib("ebi_core/include/ebi.hrl").
+-include_lib("ebi_core/include/ebi_model_native.hrl").
 -include_lib("yaws/include/yaws_api.hrl").
 -include("ebi_web.hrl").
 
@@ -55,9 +56,14 @@ handle_request([?API_ROOT, "biosensor", _BiosensorId], 'GET', _Arg) ->
     ];
 
 handle_request([?API_ROOT, "model"], 'GET', _Arg) ->
+    Models = [
+        #model{id = "Id1", name = "Model1", description = "Desc1", definition = #model_def{ref = "Ref1"}},
+        #model{id = "Id2", name = "Model2", description = "Desc2", definition = #model_def{ref = "Ref2"}},
+        #model{id = "Id3", name = "Model3", description = "Desc3", definition = #model_def{ref = "Ref3"}}
+    ],
     [
         {status, 200},
-        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+        {content, ?MEDIATYPE_JSON, jiffy:encode(ebi_web_model_json:encode(Models))}
     ];
 
 handle_request([?API_ROOT, "model", _ModelId], 'GET', _Arg) ->
