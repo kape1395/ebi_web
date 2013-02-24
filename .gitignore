@@ -6,4 +6,6 @@ deps/
 ebin/
 ebin-erlide/
 logs/
+log/
+temp/
 rel/ebi/

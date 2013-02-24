@@ -8,6 +8,9 @@ deps-get:
 deps:
 	$(REBAR) update-deps
 
+deps-local:
+	 (cd deps/ebi_core; git pull ../../../ebi_core master )
+
 compile:
 	$(REBAR) compile
 
@@ -23,6 +26,10 @@ doc:
 	$(REBAR) doc
 
 clean:
+	$(REBAR) clean apps=ebi_web
+	rm -f doc/*.html doc/edoc-info
+
+clean-all:
 	$(REBAR) clean
 	rm -f doc/*.html doc/edoc-info
 

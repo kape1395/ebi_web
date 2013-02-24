@@ -2,7 +2,7 @@
 -compile([{parse_transform, lager_transform}]).
 -export([encode/1]).
 -include_lib("ebi_core/include/ebi.hrl").
--include_lib("ebi_core/include/ebi_model_native.hrl").
+-include_lib("ebi_core/include/ebi_model.hrl").
 
 
 %% =============================================================================
@@ -10,15 +10,29 @@
 %% =============================================================================
 
 
+encode(undefined) ->
+    null;
+
 encode(List) when is_list(List) ->
     [ encode(Element) || Element <- List ];
 
-encode(#model{id = _Id, name = Name, description = Desc, definition = #model_def{ref = Ref}}) ->
+encode(#model{
+        id = Id, ref = Ref, name = Name, description = Desc, status = Status,
+        changed = Ch, changed_by = By, definition = Def, parameters = Prms
+    }) ->
     {[
-        {id, 'TODO'},
+        {id, encode_string(Id)},
+        {ref, encode_string(Ref)},
         {name, encode_string(Name)},
         {description, encode_string(Desc)},
-        {definition, encode_string(Ref)}
+        {status, Status},
+        {changed, encode_tstamp(Ch)},
+        {changed_by, encode_string(By)},
+        {definition, encode(Def)},
+        {parameters, case Prms of
+            undefined -> null;
+            _ -> lists:map(fun encode_string/1, Prms)
+        end}
     ]};
 
 encode(#ebi_model{species = Species, reactions = Reactions, compartments = Compartments}) ->
@@ -63,6 +77,32 @@ encode(#ebi_rdef_simple{reagents = R, products = P, rateconst = C}) ->
 %%  Helper functions.
 %% =============================================================================
 
+
+%%
+%%
+%%
+encode_string(undefined) ->
+    null;
+
 encode_string(Text) ->
-    encode_string(Text).
+    list_to_binary(Text).
+
+
+%%
+%%
+%%
+encode_tstamp(undefined) ->
+    null;
+
+encode_tstamp({{Y, M, D}, {H, Mi, S}}) ->
+    Args = [Y, M, D, H, Mi, S],
+    Date = io_lib:format("~B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0BZ", Args),
+    erlang:iolist_to_binary(Date);
+
+encode_tstamp(Now) ->
+    {_MegaSecs, _Secs, MicroSecs} = Now,
+    {{Y, M, D}, {H, Mi, S}} = calendar:now_to_datetime(Now),
+    Args = [Y, M, D, H, Mi, S, MicroSecs],
+    Date = io_lib:format("~B-~2.10.0B-~2.10.0BT~2.10.0B:~2.10.0B:~2.10.0B.~6.10.0BZ", Args),
+    erlang:iolist_to_binary(Date).
 

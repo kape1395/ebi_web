@@ -136,6 +136,13 @@ div.model-reaction-michaelis input {
 }
 
 
+#model-reactions {
+    border: none;
+}
+
+.current-moded-step {
+    font-weight: bold;
+}
 
 
 /* ==========================================================================

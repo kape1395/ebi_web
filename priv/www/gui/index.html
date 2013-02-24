@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>EBI</title>
+        <meta name="description" content="Biosensor simulation system">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        <div class="container">
+            <div id="page-header">
+                <h1>EBI <small>a biosensor modelling and simulation system</small></h1>
+            </div>
+            <div id="pages">
+                <div id="main-tabs" class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li><a href="#overview" data-toggle="tab">Overview</a></li>
+                        <li><a href="#models" data-toggle="tab">Models</a></li>
+                        <li><a href="#simulations" data-toggle="tab">Simulations</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="overview" class="tab-pane">
+                            <div class="row">
+                                <div class="well span4 offset1">
+                                    <h3>
+                                        <a href="#model-list">View</a> or
+                                        <a href="#model-new">create</a> models
+                                    </h3>
+                                </div>
+                                <div class="well span4 offset1">
+                                    <h3>
+                                        <a href="#">Run</a> simulations
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="models" class="tab-pane">
+                            <!--div id="model-new">
+                                <ul class="breadcrumb">
+                                    <li class="active">New <span class="divider">|</span></li>
+                                    <li><a href="#model-list">List</a></li>
+                                </ul>
+                                <form class="form-inline">
+                                    <fieldset>
+                                        <legend>Create new biosensor model</legend>
+                                        <input type="text" placeholder="Model name" />
+                                        <button type="button" class="btn">Create</button>
+                                    </fieldset>
+                                </form>
+                            </div-->
+                            <div id="model-list">
+                                <ul class="breadcrumb">
+                                    <li class="active">List</li>
+                                    <li class="active pull-right"><a href="#model-new" class="btn btn-mini btn-primary">New</a></li>
+                                </ul>
+                                <table id="model-list-table" class="table table-hover table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th>Biosensor</th>
+                                            <th>Model name <span class='id-text'>(id)</span></th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div id="model-details">
+                                <ul class="breadcrumb">
+                                    <li><a href="#model-list">List</a> <span class="divider">&raquo;</span></li>
+                                    <li class="active">Model: <span id="model-name"></span></li>
+                                    <li class="active pull-right"><a href="#model-copy" class="btn btn-mini btn-primary">Copy</a></li>
+                                    <li class="active pull-right"><a href="#model-edit" class="btn btn-mini btn-primary">Edit</a>&nbsp;</li>
+                                </ul>
+                                <p id="model-description"></p>
+                                <p>The model involves reactions:</p>
+                                <table id="model-reactions" class="span10 offset1">
+                                    <tbody></tbody>
+                                </table>
+                                <div class="clearfix"></div>
+                                <p>where</p>
+                                <ul id="model-species" class="unstyled"></ul>
+                                <div class="clearfix"></div>
+                            </div><!-- model-details -->
+                        </div>
+                        <div id="simulations" class="tab-pane">
+                            <div class="well">simulations</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="moded">
+                    <ul class="breadcrumb">
+                        <li style="display: block;"><h3>Editing model: ...</h3></li>
+                        <li><a href="#moded-general">General</a> <span class="divider">&raquo;</span></li>
+                        <li><a href="#moded-species">Species</a> <span class="divider">&raquo;</span></li>
+                        <li><a href="#moded-reactions">Reactions</a> <span class="divider">&raquo;</span></li>
+                        <li><a href="#moded-domain">Domain</a> <span class="divider">&raquo;</span></li>
+                        <li><a href="#moded-parameters">Parameters</a> <span class="divider">&raquo;</span></li>
+                        <li><a href="#moded-done">Done</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="moded-general">
+                            <form class="form-horizontal">
+                                <div class="control-group">
+                                    <label class="control-label" for="moded-gen-name">Name</label>
+                                    <div class="controls">
+                                        <input type="text" id="moded-gen-name" placeholder="Short name" class="input-xxlarge">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="moded-gen-desc">Description</label>
+                                    <div class="controls">
+                                        <textarea id="moded-gen-desc" placeholder="Model description" class="input-xxlarge"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <a href="#moded-species" class="btn btn-primary pull-right">Next: define species</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                                        <!--
+                                        <tr>
+                                            <td>Simple</td>
+                                            <td>R_1</td>
+                                            <td>
+                                                <div class="model-reaction-simple">
+                                                    <input type="text" placeholder="Reagents" title="Example: 2 S1 + S2" class="reagent"/>
+                                                    <input type="text" placeholder="Products" title="Example: P" class="product"/>
+                                                    <div class="rate">
+                                                        <input type="text" placeholder="Rate const" title="Example: k1"/>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                                            <defs>
+                                                                <marker id="Triangle" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="5" orient="auto">
+                                                                   <path d="M 0 0 L 10 5 L 0 10 L 7 5 z" style="fill:#999;stroke:#999;"/>
+                                                                </marker>
+                                                            </defs>
+                                                            <line x1="5" y1="5" x2="95%" y2="5" style="stroke:#999;stroke-width:3" marker-end="url(#Triangle)"/>
+                                                        </svg>
+                                                    </div>
+    
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                                    <mrow>
+                                                        <mfrac>
+                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
+                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
+                                                        </mfrac>
+                                                        <mo>=</mo>
+                                                    </mrow>
+                                                </math>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Michaelis Menten</td>
+                                            <td>R_2</td>
+                                            <td>
+                                                <div class="model-reaction-michaelis">
+                                                    Substrate: <input type="text" placeholder="Substrate" title="Example: S1"/>
+                                                    Product: <input type="text" placeholder="Product" title="Example: P1"/>
+                                                    V_max: <input type="text" placeholder="V_max" title="Example: k1"/>
+                                                    K_M: <input type="text" placeholder="K_M" title="Example: k2"/>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                                    <mrow>
+                                                        <mfrac>
+                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
+                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
+                                                        </mfrac>
+                                                        <mo>=</mo>
+                                                    </mrow>
+                                                </math>
+                                            </td>
+                                        </tr>
+                                        -->
+
+                        <div id="moded-species">
+                            <form>
+                                <table class="table table-condensed" id="moded-species-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <div class="clearfix"></div>
+                                <div class="form-actions">
+                                    <a href="#moded-general" class="btn pull-left">Back to general info</a>
+                                    <a href="#moded-reactions" class="btn btn-primary pull-right">Next: define reactions</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="moded-reactions">
+                            <form>
+                                <div class="form-actions">
+                                    <a href="#moded-species" class="btn pull-left">Back to species definitions</a>
+                                    <a href="#moded-domain" class="btn btn-primary pull-right">Next: define domain</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="moded-domain">
+                            <form>
+                                <div class="form-actions">
+                                    <a href="#moded-reactions" class="btn pull-left">Back to reaction definitions</a>
+                                    <a href="#moded-parameters" class="btn btn-primary pull-right">Next: define parameters</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="moded-parameters">
+                            <form>
+                                <div class="form-actions">
+                                    <a href="#moded-domain" class="btn pull-left">Back to domain definition</a>
+                                    <a href="#moded-done" class="btn btn-primary pull-right">Next: validate and save</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="moded-done">
+                            <form>
+                                <div class="form-actions">
+                                    <a href="#moded-parameters" class="btn pull-left">Back to parameter definitions</a>
+                                    <a href="#moded-done" class="btn btn-primary pull-right">Save</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="page-footer">
+                EBI, &copy; Biomoda, 2012-2013
+            </div>
+        </div>
+        <script src="js/vendor/jquery-1.8.3.min.js"></script>
+        <script src="js/vendor/bootstrap-2.2.2.min.js"></script>
+        <script src="js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () { ebi_init(); });
+        </script>
+    </body>
+</html>

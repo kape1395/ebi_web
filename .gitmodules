@@ -1,0 +1,3 @@
+[submodule "priv/www/gui/js/vendor/mathjax"]
+	path = priv/www/gui/js/vendor/mathjax
+	url = git://github.com/mathjax/MathJax.git

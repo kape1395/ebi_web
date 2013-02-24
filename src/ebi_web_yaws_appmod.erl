@@ -2,11 +2,13 @@
 -compile([{parse_transform, lager_transform}]).
 -export([out/1]).
 -include_lib("ebi_core/include/ebi.hrl").
--include_lib("ebi_core/include/ebi_model_native.hrl").
+-include_lib("ebi_core/include/ebi_model.hrl").
 -include_lib("yaws/include/yaws_api.hrl").
 -include("ebi_web.hrl").
 
--define(API_ROOT, "api").
+-define(APP, "ebi").
+-define(API, "api").
+-define(GUI, "gui").
 -define(MEDIATYPE_JSON, "application/vnd.kape1395.ebi-v1+json; level=0").
 -define(MEDIATYPE_TERM, "application/x-erlang-term").
 
@@ -29,53 +31,100 @@ out(Arg) ->
 %%
 %%  Handling of REST style requests.
 %%
-handle_request([], 'GET', _Arg) ->
+
+%% -----------------------------------------------------------------------------
+%%  API
+%% -----------------------------------------------------------------------------
+
+handle_request([?APP, ?API], 'GET', _Arg) ->
     [
         {status, 200},
-        {header, {"Link", "<api>; rel=api"}},
-        {header, {"Link", "<mgr>; rel=ui"}},
-        serve_priv_file("index.html", "text/html")
+        {header, {"Link", "<model>; rel=models"}},
+        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
     ];
 
-handle_request([?API_ROOT], 'GET', _Arg) ->
+handle_request([?APP, ?API, "biosensor"], 'GET', _Arg) ->
     [
         {status, 200},
         {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
     ];
 
-handle_request([?API_ROOT, "biosensor"], 'GET', _Arg) ->
+handle_request([?APP, ?API, "biosensor", _BiosensorId], 'GET', _Arg) ->
     [
         {status, 200},
         {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
     ];
 
-handle_request([?API_ROOT, "biosensor", _BiosensorId], 'GET', _Arg) ->
-    [
-        {status, 200},
-        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
-    ];
-
-handle_request([?API_ROOT, "model"], 'GET', _Arg) ->
-    Models = [
-        #model{id = "Id1", name = "Model1", description = "Desc1", definition = #model_def{ref = "Ref1"}},
-        #model{id = "Id2", name = "Model2", description = "Desc2", definition = #model_def{ref = "Ref2"}},
-        #model{id = "Id3", name = "Model3", description = "Desc3", definition = #model_def{ref = "Ref3"}}
-    ],
+handle_request([?APP, ?API, "model"], 'GET', _Arg) ->
+    {ok, Models} = ebi_store:get_models(all),
     [
         {status, 200},
         {content, ?MEDIATYPE_JSON, jiffy:encode(ebi_web_model_json:encode(Models))}
     ];
 
-handle_request([?API_ROOT, "model", _ModelId], 'GET', _Arg) ->
+handle_request([?APP, ?API, "model", ModelId], 'GET', _Arg) ->
+    {ok, Model} = ebi_store:get_model(ModelId),
     [
         {status, 200},
-        {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
+        {content, ?MEDIATYPE_JSON, jiffy:encode(ebi_web_model_json:encode(Model))}
+    ];
+
+%% -----------------------------------------------------------------------------
+%%  GUI
+%% -----------------------------------------------------------------------------
+
+handle_request([?APP, ?GUI | Tail] = Path, 'GET', Arg) ->
+    case Tail of
+        [] ->
+            Uri = yaws_api:request_url(Arg),
+            case lists:last(Uri#url.path) of
+                $/ -> serve_priv_file("gui/index.html", "text/html");
+                _  -> redirect_to_gui()
+            end;
+        _ ->
+            [?APP | WwwPath] = Path,
+            FileName = string:join(WwwPath, "/"),
+            serve_priv_file(FileName, yaws_api:mime_type(FileName))
+    end;
+
+
+%% -----------------------------------------------------------------------------
+%%  Other paths
+%% -----------------------------------------------------------------------------
+
+handle_request([], 'GET', _Arg) ->
+    redirect_to_gui();
+
+handle_request([?APP], 'GET', _Arg) ->
+    redirect_to_gui();
+
+
+handle_request(["favicon.ico" = FileName], 'GET', _Arg) ->
+    serve_priv_file(FileName, yaws_api:mime_type(FileName));
+
+handle_request(_Path, 'GET', Arg) ->
+    [
+        {status, 404},
+        {ehtml, [{p, [], [
+            io_lib:format("404: Page ~p not found.", [yaws_api:request_url(Arg)])
+        ]}]}
+    ];
+
+handle_request(_Path, _Method, _Arg) ->
+    [
+        {status, 400}
     ].
+
 
 
 %% =============================================================================
 %%  Helper functions.
 %% =============================================================================
+
+
+redirect_to_gui() ->
+    {redirect, lists:flatten(["/", ?APP, "/", ?GUI, "/"])}.
+
 
 serve_priv_file(FileName, ContentType) ->
     {ok, ThisApp} = application:get_application(?MODULE),
