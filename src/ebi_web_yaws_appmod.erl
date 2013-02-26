@@ -62,12 +62,20 @@ handle_request([?APP, ?API, "model"], 'GET', _Arg) ->
         {content, ?MEDIATYPE_JSON, jiffy:encode(ebi_web_model_json:encode(Models))}
     ];
 
+handle_request([?APP, ?API, "model"], 'POST', Arg) ->
+    lager:info("MODEL POST: ~p", [Arg]),
+    {status, 200};
+
 handle_request([?APP, ?API, "model", ModelId], 'GET', _Arg) ->
     {ok, Model} = ebi_store:get_model(ModelId),
     [
         {status, 200},
         {content, ?MEDIATYPE_JSON, jiffy:encode(ebi_web_model_json:encode(Model))}
     ];
+
+handle_request([?APP, ?API, "model", ModelId], 'PUT', Arg) ->
+    lager:info("MODEL PUT[~p]: ~p", [ModelId, Arg]),
+    {status, 200};
 
 %% -----------------------------------------------------------------------------
 %%  GUI

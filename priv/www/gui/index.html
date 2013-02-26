@@ -49,19 +49,6 @@
                             </div>
                         </div>
                         <div id="models" class="tab-pane">
-                            <!--div id="model-new">
-                                <ul class="breadcrumb">
-                                    <li class="active">New <span class="divider">|</span></li>
-                                    <li><a href="#model-list">List</a></li>
-                                </ul>
-                                <form class="form-inline">
-                                    <fieldset>
-                                        <legend>Create new biosensor model</legend>
-                                        <input type="text" placeholder="Model name" />
-                                        <button type="button" class="btn">Create</button>
-                                    </fieldset>
-                                </form>
-                            </div-->
                             <div id="model-list">
                                 <ul class="breadcrumb">
                                     <li class="active">List</li>
@@ -103,7 +90,7 @@
                 </div>
                 <div id="moded">
                     <ul class="breadcrumb">
-                        <li style="display: block;"><h3>Editing model: ...</h3></li>
+                        <li style="display: block;"><h3 class="moded_mode"></h3></li>
                         <li><a href="#moded-general">General</a> <span class="divider">&raquo;</span></li>
                         <li><a href="#moded-species">Species</a> <span class="divider">&raquo;</span></li>
                         <li><a href="#moded-reactions">Reactions</a> <span class="divider">&raquo;</span></li>
@@ -134,67 +121,6 @@
                                 </div>
                             </form>
                         </div>
-                                        <!--
-                                        <tr>
-                                            <td>Simple</td>
-                                            <td>R_1</td>
-                                            <td>
-                                                <div class="model-reaction-simple">
-                                                    <input type="text" placeholder="Reagents" title="Example: 2 S1 + S2" class="reagent"/>
-                                                    <input type="text" placeholder="Products" title="Example: P" class="product"/>
-                                                    <div class="rate">
-                                                        <input type="text" placeholder="Rate const" title="Example: k1"/>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-                                                            <defs>
-                                                                <marker id="Triangle" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="5" orient="auto">
-                                                                   <path d="M 0 0 L 10 5 L 0 10 L 7 5 z" style="fill:#999;stroke:#999;"/>
-                                                                </marker>
-                                                            </defs>
-                                                            <line x1="5" y1="5" x2="95%" y2="5" style="stroke:#999;stroke-width:3" marker-end="url(#Triangle)"/>
-                                                        </svg>
-                                                    </div>
-    
-                                                    <div class="clearfix"></div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                                    <mrow>
-                                                        <mfrac>
-                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
-                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
-                                                        </mfrac>
-                                                        <mo>=</mo>
-                                                    </mrow>
-                                                </math>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Michaelis Menten</td>
-                                            <td>R_2</td>
-                                            <td>
-                                                <div class="model-reaction-michaelis">
-                                                    Substrate: <input type="text" placeholder="Substrate" title="Example: S1"/>
-                                                    Product: <input type="text" placeholder="Product" title="Example: P1"/>
-                                                    V_max: <input type="text" placeholder="V_max" title="Example: k1"/>
-                                                    K_M: <input type="text" placeholder="K_M" title="Example: k2"/>
-                                                    <div class="clearfix"></div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <math xmlns="http://www.w3.org/1998/Math/MathML">
-                                                    <mrow>
-                                                        <mfrac>
-                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>U</mi></mrow>
-                                                            <mrow><mo rspace="0">&PartialD;</mo><mi>t</mi></mrow>
-                                                        </mfrac>
-                                                        <mo>=</mo>
-                                                    </mrow>
-                                                </math>
-                                            </td>
-                                        </tr>
-                                        -->
-
                         <div id="moded-species">
                             <form>
                                 <table class="table table-condensed" id="moded-species-table">
@@ -219,6 +145,17 @@
                         </div>
                         <div id="moded-reactions">
                             <form>
+                                <table class="table" id="moded-reactions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name<br>Description</th>
+                                            <th>Parameters</th>
+                                            <th>Rate equation</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                                 <div class="form-actions">
                                     <a href="#moded-species" class="btn pull-left">Back to species definitions</a>
                                     <a href="#moded-domain" class="btn btn-primary pull-right">Next: define domain</a>
@@ -230,6 +167,17 @@
                         </div>
                         <div id="moded-domain">
                             <form>
+                                <table class="table" id="moded-domain-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Name<br>Description</th>
+                                            <th>Parameters</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                                 <div class="form-actions">
                                     <a href="#moded-reactions" class="btn pull-left">Back to reaction definitions</a>
                                     <a href="#moded-parameters" class="btn btn-primary pull-right">Next: define parameters</a>
@@ -254,7 +202,7 @@
                             <form>
                                 <div class="form-actions">
                                     <a href="#moded-parameters" class="btn pull-left">Back to parameter definitions</a>
-                                    <a href="#moded-done" class="btn btn-primary pull-right">Save</a>
+                                    <a href="#moded-save" class="btn btn-primary pull-right">Save</a>
                                     <span class="divider pull-right">&nbsp;&nbsp;</span>
                                     <a href="#moded-cancel" class="btn pull-right">Cancel</a>
                                     <span class="divider pull-right">&nbsp;&nbsp;</span>

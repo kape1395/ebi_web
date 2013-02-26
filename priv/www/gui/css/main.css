@@ -102,16 +102,20 @@ span.id-text {
 }
 
 
+table.moded-reactions-table {
+    vertical-align: middle;
+}
+
 div.model-reaction-simple {
-    width: 600px;
+    width: 520px;
 }
 div.model-reaction-simple input.reagent {
-    width: 200px;
+    width: 160px;
     float:left;
     margin-top: 20px;
 }
 div.model-reaction-simple input.product {
-    width: 200px;
+    width: 160px;
     float:right;
     margin-top: 20px;
 }
@@ -130,10 +134,25 @@ div.model-reaction-simple div.rate svg {
     margin: 5px auto;
     display: block;
 }
+
+div.model-reaction-michaelis {
+    width: 520px;
+}
+div.model-reaction-michaelis table {
+    border: none;
+}
+div.model-reaction-michaelis tr {
+    border: none;
+}
+div.model-reaction-michaelis td {
+    border: none;
+    padding: 3px 5px;
+}
 div.model-reaction-michaelis input {
-    width: 70px;
+    width: 160px;
     margin-right: 10px;
 }
+
 
 
 #model-reactions {
