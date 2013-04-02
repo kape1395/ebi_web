@@ -207,7 +207,7 @@ function ebi_moded_new() {
         description: "",
         status: "active",
         definition: {
-            species: [],
+            species: [{name:"", description:""}],
             reactions: [],
             compartments: []
         },
@@ -286,11 +286,11 @@ function ebi_moded_init() {
     //
     $("#moded").on("change", ".moded-spc-name", function () {
         ebi_moded_model().definition.species[$(this).closest("tr").data("idx")].name = $(this).val();
-        ebi_moded_render_species();
+        //ebi_moded_render_species();
     });
     $("#moded").on("change", ".moded-spc-desc", function () {
         ebi_moded_model().definition.species[$(this).closest("tr").data("idx")].description = $(this).val();
-        ebi_moded_render_species();
+        //ebi_moded_render_species();
     });
     $("#moded").on("click", "a[href='#moded-species-add']", function () {
         ebi_moded_model().definition.species.push({name:"", description:""});
@@ -371,6 +371,28 @@ function ebi_moded_init() {
     $("#moded").on("click", "a[href='#moded-reaction-rem']", function () {
         ebi_moded_model().definition.reactions.splice($(this).closest("tr").data("idx"), 1);
         ebi_moded_render_reactions();
+    });
+
+    //
+    //  Domain / Compartments
+    //
+    AddCompFun = function (model, type) {
+        model.definition.compartments.push({
+            name: "",
+            description: "",
+            type: type,
+            definition: {
+            }
+        });
+        ebi_moded_render_domain();
+    }
+    $("#moded").on("click", "a[href='#moded-comp-add-solution']",        function () { AddCompFun(ebi_moded_model(), "ebi_cdef_solution"); });
+    $("#moded").on("click", "a[href='#moded-comp-add-diffusive']",       function () { AddCompFun(ebi_moded_model(), "ebi_cdef_diffusive"); });
+    $("#moded").on("click", "a[href='#moded-comp-add-solid_electrode']", function () { AddCompFun(ebi_moded_model(), "ebi_cdef_solid_electrode"); });
+    $("#moded").on("click", "a[href='#moded-comp-add-insulating']",      function () { AddCompFun(ebi_moded_model(), "ebi_cdef_insulating"); });
+    $("#moded").on("click", "a[href='#moded-comp-rem']", function () {
+        ebi_moded_model().definition.compartments.splice($(this).closest("tr").data("idx"), 1);
+        ebi_moded_render_domain();
     });
 }
 
@@ -471,14 +493,26 @@ function ebi_moded_render_domain() {
     for (var i = 0; i < model.definition.compartments.length; i++) {
         var c = model.definition.compartments[i];
         str += "<tr data-idx='" + i + "'>";
-        str += "<td>" + c.type + "</td>";
         str += "<td>";
-        str += "    <input type='text' placeholder='Reaction name' value='" + r.name + "' class='moded-rea-name input-medium'/><br>";
-        str += "    <textarea placeholder='Description' class='moded-rea-desc input-medium'>" + r.description + "</textarea>";
+        str += "    " + c.type + "<br>";
+        str += "    <input type='text' placeholder='Compartment name' value='" + c.name + "' class='moded-comp-name input-medium'/><br>";
+        str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium'>" + c.description + "</textarea>";
         str += "</td>";
-        if (r.type == "ebi_cdef_solution") {
+        if (c.type == "ebi_cdef_solution") {
             str += "<td>";
-            str += "...";
+            str += "solution...";
+            str += "</td>";
+        } else if (c.type == "ebi_cdef_diffusive") {
+            str += "<td>";
+            str += "diffusive...";
+            str += "</td>";
+        } else if (c.type == "ebi_cdef_solid_electrode") {
+            str += "<td>";
+            str += "solid_electrode...";
+            str += "</td>";
+        } else if (c.type == "ebi_cdef_insulating") {
+            str += "<td>";
+            str += "insulating...";
             str += "</td>";
         } else {
             str += "<td>Unsupported</td>";
@@ -490,14 +524,14 @@ function ebi_moded_render_domain() {
     str += "  <div class='dropdown pull-right'>";
     str += "    <a href='#moded-comp-add' class='btn btn-primary dropdown-toggle' data-toggle='dropdown'>Add new compartment <b class='caret'></b></a>";
     str += "    <ul class='dropdown-menu' role='menu' aria-labelledby='dLabel'>";
-    str += "      <li><a tabindex='-1' href='#moded-comp-add-solution'>Investigated solution</a></li>";
-    str += "      <li><a tabindex='-1' href='#moded-comp-add-diffusion'>Diffusive medium</a></li>";
-    str += "      <li><a tabindex='-1' href='#moded-comp-add-solid_electrode'>Solid electrode</a></li>";
+    str += "      <li><a tabindex='-1' href='#moded-comp-add-solution'        >Investigated solution</a></li>";
+    str += "      <li><a tabindex='-1' href='#moded-comp-add-diffusive'       >Diffusive medium</a></li>";
+    str += "      <li><a tabindex='-1' href='#moded-comp-add-solid_electrode' >Solid electrode</a></li>";
+    str += "      <li><a tabindex='-1' href='#moded-comp-add-insulating'      >Insulating film</a></li>";
     str += "    </ul>";
     str += "  </div>";
     str += "</td></tr>";
     $("#moded-domain-table tbody").html(str);
-    //MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 }
 
 function ebi_moded_spc_list_format(list) {

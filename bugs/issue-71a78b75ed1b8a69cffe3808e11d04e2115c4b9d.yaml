@@ -1,0 +1,22 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: Focus cannot be changed directly from one input field to other.
+desc: |-
+  The reason for that is the regeneration of all the html for the table including all the input fields.
+  Html rebuilding scope should be narrowed.
+type: :bugfix
+component: ebi_web
+release: 
+reporter: Karolis Petrauskas <k.petrauskas@gmail.com>
+status: :unstarted
+disposition: 
+creation_time: 2013-04-02 03:40:09.231286 Z
+references: []
+
+id: 71a78b75ed1b8a69cffe3808e11d04e2115c4b9d
+log_events: 
+- - 2013-04-02 03:40:39.479900 Z
+  - Karolis Petrauskas <k.petrauskas@gmail.com>
+  - created
+  - |-
+    Rason is clear.
+    Need to find a time for fixing this in all the places.
