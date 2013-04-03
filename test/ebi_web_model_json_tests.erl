@@ -39,7 +39,7 @@ timestamp_msec_test() ->
 
 
 encode_decode_test() ->
-    _EbiModel = #ebi_model{
+    EbiModel = #ebi_model{
         species = [
             #ebi_species{name = "S", description = "Substrate"},
             #ebi_species{name = "P", description = "Product"},
@@ -61,10 +61,13 @@ encode_decode_test() ->
         ],
         compartments = [
             #ebi_compartment{
-                name = "\\Omega_1",
-                description = "Solid electrode",
-                definition = #ebi_cdef_solid_electrode{
-                    el_reaction = "R1"
+                name = "\\Omega_3",
+                description = "Solution",
+                definition = #ebi_cdef_solution{
+                    nernst_thickness = "d2",
+                    concentrations = [
+                        #ebi_comp_species{species = "S", concentration = "S0", diffusion = undefined}
+                    ]
                 }
             },
             #ebi_compartment{
@@ -72,16 +75,14 @@ encode_decode_test() ->
                 description = "Enzyme",
                 definition = #ebi_cdef_diffusive{
                     reactions = ["R2"],
-                    %diffusion_coef = "De",
                     diffusion_coefs = []
                 }
             },
             #ebi_compartment{
-                name = "\\Omega_3",
-                description = "Solution",
-                definition = #ebi_cdef_solution{
-                    nernst_thickness = "d2",
-                    concentrations = [{"S", "S0"}]
+                name = "\\Omega_1",
+                description = "Solid electrode",
+                definition = #ebi_cdef_solid_electrode{
+                    el_reaction = "R1"
                 }
             }
         ]
@@ -94,11 +95,12 @@ encode_decode_test() ->
         status = active,
         changed = erlang:now(),
         changed_by = "Jonas Jonaitis",
-        definition = undefined,
+        definition = EbiModel,
         parameters = ["asd"],
         representations = []
     },
-    Model = ebi_web_model_json:decode(model, ebi_web_model_json:encode(Model)),
+    Json = jiffy:encode(ebi_web_model_json:encode(Model)),
+    Model = ebi_web_model_json:decode(jiffy:decode(Json)),
     ok.
 
 

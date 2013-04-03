@@ -1,6 +1,6 @@
 -module(ebi_web_model_json).
 -compile([{parse_transform, lager_transform}]).
--export([encode/1, decode/2]).
+-export([encode/1, decode/1]).
 -export([encode_tstamp/1, decode_tstamp/1]).
 -include_lib("ebi_core/include/ebi.hrl").
 -include_lib("ebi_core/include/ebi_model.hrl").
@@ -36,10 +36,7 @@ encode(#model{
         {changed, encode_tstamp(Ch)},
         {changed_by, encode_string(By)},
         {definition, encode(Def)},
-        {parameters, case Prms of
-            undefined -> null;
-            _ -> lists:map(fun encode_string/1, Prms)
-        end}
+        {parameters, encode_string_list(Prms)}
     ]};
 
 encode(#ebi_model{species = Species, reactions = Reactions, compartments = Compartments}) ->
@@ -72,36 +69,59 @@ encode(#ebi_rdef_mm{substrate = S, product = P, vmax = VMax, km = KM}) ->
     ]};
 
 encode(#ebi_rdef_simple{reagents = R, products = P, rateconst = C}) ->
-    F = fun ({Name, Num}) -> {[{species, encode_string(Name)}, {number, Num}]} end,
+    F = fun ({Name, Num}) -> {[
+        {species, encode_string(Name)},
+        {number, encode_number(Num)}
+    ]} end,
     {[
         {reagents, [ F(X) || X <- R]},
         {products, [ F(X) || X <- P]},
         {rateconst, encode_string(C)}
     ]};
 
-encode(#ebi_compartment{name = Name, description = Description, definition = Definition}) ->
+encode(#ebi_compartment{name = Name, description = Desc, definition = Def}) ->
     {[
         {name, encode_string(Name)},
-        {description, encode_string(Description)},
-        {type, element(1, Definition)},
-        {definition, encode(Definition)}
+        {description, encode_string(Desc)},
+        {type, element(1, Def)},
+        {definition, encode(Def)}
     ]};
 
-encode(#ebi_cdef_solution{}) ->
+encode(#ebi_comp_species{species = S, diffusion = D, concentration = C}) ->
     {[
+        {species, encode_string(S)},
+        {diffusion, encode_string(D)},
+        {concentration, encode_string(C)}
     ]};
 
-encode(#ebi_cdef_diffusive{}) ->
+encode(#ebi_cdef_solution{nernst_thickness = NT, concentrations = C}) ->
     {[
+        {nernst_thickness, encode_string(NT)},
+        {concentrations, encode(C)}
+    ]};
+
+encode(#ebi_cdef_diffusive{diffusion_coefs = DC, reactions = R}) ->
+    {[
+        {diffusion_coefs, encode(DC)},
+        {reactions, encode_string_list(R)}
     ]};
 
 encode(#ebi_cdef_insulating{}) ->
     {[
     ]};
 
-encode(#ebi_cdef_solid_electrode{}) ->
+encode(#ebi_cdef_solid_electrode{el_reaction = ER}) ->
     {[
+        {el_reaction, encode_string(ER)}
     ]}.
+
+
+%%
+%%  Decode Model JSON.
+%%
+-spec decode(Json :: term()) -> term().
+decode(Json) ->
+    decode(model, Json).
 
 
 %%
@@ -116,26 +136,98 @@ decode(Type, List) when is_list(List) ->
 
 decode(model, {PL}) ->
     #model{
-        id          = decode_string(proplists:get_value(id,          PL, null)),
-        ref         = decode_string(proplists:get_value(ref,         PL, null)),
-        name        = decode_string(proplists:get_value(name,        PL, null)),
-        description = decode_string(proplists:get_value(description, PL, null)),
-        status      = decode_atom  (proplists:get_value(status,      PL, null)),
-        changed     = decode_tstamp(proplists:get_value(changed,     PL, null)),
-        changed_by  = decode_string(proplists:get_value(changed_by,  PL, null)),
-        definition  = decode(ebi_model, proplists:get_value(definition,  PL, null)),
-        parameters  = case proplists:get_value(parameters,  PL, null) of
-            null -> undefined;
-            Prms -> lists:map(fun decode_string/1, Prms)
-        end
+        id          = decode_string(proplists:get_value(<<"id">>,          PL, null)),
+        ref         = decode_string(proplists:get_value(<<"ref">>,         PL, null)),
+        name        = decode_string(proplists:get_value(<<"name">>,        PL, null)),
+        description = decode_string(proplists:get_value(<<"description">>, PL, null)),
+        status      = decode_atom  (proplists:get_value(<<"status">>,      PL, null)),
+        changed     = decode_tstamp(proplists:get_value(<<"changed">>,     PL, null)),
+        changed_by  = decode_string(proplists:get_value(<<"changed_by">>,  PL, null)),
+        definition  = decode(ebi_model, proplists:get_value(<<"definition">>,  PL, null)),
+        parameters  = decode_string_list(proplists:get_value(<<"parameters">>,  PL, null))
     };
 
 decode(ebi_model, {PL}) ->
     #ebi_model{
-        species      = decode(ebi_species,     proplists:get_value(species,      PL, null)),
-        reactions    = decode(ebi_reaction,    proplists:get_value(reactions,    PL, null)),
-        compartments = decode(ebi_compartment, proplists:get_value(compartments, PL, null))
+        species      = decode(ebi_species,     proplists:get_value(<<"species">>,      PL, null)),
+        reactions    = decode(ebi_reaction,    proplists:get_value(<<"reactions">>,    PL, null)),
+        compartments = decode(ebi_compartment, proplists:get_value(<<"compartments">>, PL, null))
+    };
+
+decode(ebi_species, {PL}) ->
+    #ebi_species{
+        name        = decode_string(proplists:get_value(<<"name">>,        PL, null)),
+        description = decode_string(proplists:get_value(<<"description">>, PL, null))
+    };
+
+decode(ebi_reaction, {PL}) ->
+    #ebi_reaction{
+        name        = decode_string(proplists:get_value(<<"name">>,        PL, null)),
+        description = decode_string(proplists:get_value(<<"description">>, PL, null)),
+        definition  = decode(
+            decode_atom(proplists:get_value(<<"type">>, PL, undefined)),
+            proplists:get_value(<<"definition">>, PL, null)
+        )
+    };
+
+decode(ebi_rdef_mm, {PL}) ->
+    #ebi_rdef_mm{
+        substrate = decode_string(proplists:get_value(<<"substrate">>, PL, null)),
+        product   = decode_string(proplists:get_value(<<"product">>,   PL, null)),
+        vmax      = decode_string(proplists:get_value(<<"vmax">>,      PL, null)),
+        km        = decode_string(proplists:get_value(<<"km">>,        PL, null))
+    };
+
+decode(ebi_rdef_simple, {PL}) ->
+    #ebi_rdef_simple{
+        reagents = decode(ebi_rdef_simple__species, proplists:get_value(<<"reagents">>, PL, null)),
+        products = decode(ebi_rdef_simple__species, proplists:get_value(<<"products">>, PL, null)),
+        rateconst = decode_string(proplists:get_value(<<"rateconst">>, PL, null))
+    };
+
+decode(ebi_rdef_simple__species, {S}) ->
+    {
+        decode_string(proplists:get_value(<<"species">>, S, null)),
+        decode_number(proplists:get_value(<<"number">>,  S, null))
+    };
+
+decode(ebi_compartment, {PL}) ->
+    #ebi_compartment{
+        name        = decode_string(proplists:get_value(<<"name">>,        PL, null)),
+        description = decode_string(proplists:get_value(<<"description">>, PL, null)),
+        definition  = decode(
+            decode_atom(proplists:get_value(<<"type">>, PL, undefined)),
+            proplists:get_value(<<"definition">>, PL, null)
+        )
+    };
+
+decode(ebi_comp_species, {PL}) ->
+    #ebi_comp_species{
+        species       = decode_string(proplists:get_value(<<"species">>,       PL, null)),
+        diffusion     = decode_string(proplists:get_value(<<"diffusion">>,     PL, null)),
+        concentration = decode_string(proplists:get_value(<<"concentration">>, PL, null))
+    };
+
+decode(ebi_cdef_solution, {PL}) ->
+    #ebi_cdef_solution{
+        nernst_thickness = decode_string(proplists:get_value(<<"nernst_thickness">>, PL, null)),
+        concentrations = decode(ebi_comp_species, proplists:get_value(<<"concentrations">>, PL, null))
+    };
+
+decode(ebi_cdef_diffusive, {PL}) ->
+    #ebi_cdef_diffusive{
+        diffusion_coefs = decode(ebi_comp_species, proplists:get_value(<<"diffusion_coefs">>, PL, null)),
+        reactions = decode_string_list(proplists:get_value(<<"reactions">>, PL, null))
+    };
+
+decode(ebi_cdef_insulating, {_PL}) ->
+    #ebi_cdef_insulating{};
+
+decode(ebi_cdef_solid_electrode, {PL}) ->
+    #ebi_cdef_solid_electrode{
+        el_reaction = decode_string(proplists:get_value(<<"el_reaction">>, PL, null))
     }.
+
 
 
 %% =============================================================================
@@ -151,6 +243,16 @@ encode_string(undefined) ->
 
 encode_string(Text) when is_list(Text) ->
     list_to_binary(Text).
+
+
+%%
+%%
+%%
+encode_string_list(undefined) ->
+    null;
+
+encode_string_list(List) ->
+    lists:map(fun encode_string/1, List).
 
 
 %%
@@ -172,6 +274,16 @@ encode_tstamp({{Y, M, D}, {H, Mi, S}}) ->
 
 
 %%
+%%
+%%
+encode_number(undefined) ->
+    null;
+
+encode_number(Number) when is_number(Number) ->
+    Number.
+
+
+%%
 %%  Decode string.
 %%
 decode_string(null) ->
@@ -179,6 +291,15 @@ decode_string(null) ->
 
 decode_string(Binary) when is_binary(Binary) ->
     binary_to_list(Binary).
+
+%%
+%%
+%%
+decode_string_list(null) ->
+    undefined;
+
+decode_string_list(List) ->
+    lists:map(fun decode_string/1, List).
 
 
 %%
@@ -191,7 +312,7 @@ decode_atom(Atom) when is_atom(Atom) ->
     Atom;
 
 decode_atom(Binary) when is_binary(Binary) ->
-    erlang:binary_to_existing_atom(Binary).
+    erlang:binary_to_existing_atom(Binary, utf8).
 
 
 %%
@@ -214,5 +335,16 @@ decode_tstamp(Date, <<".", MSec:6/binary, "Z">>) ->
 
 decode_tstamp(Date, <<"Z">>) ->
     Date.
+
+
+%%
+%%
+%%
+decode_number(null) ->
+    undefined;
+
+decode_number(Number) when is_number(Number) ->
+    Number.
+
 
 
