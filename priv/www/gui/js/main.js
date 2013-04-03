@@ -496,7 +496,7 @@ function ebi_moded_render_domain() {
         str += "<td>";
         str += "    " + c.type + "<br>";
         str += "    <input type='text' placeholder='Compartment name' value='" + c.name + "' class='moded-comp-name input-medium'/><br>";
-        str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium'>" + c.description + "</textarea>";
+        str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium hidden-bydef'>" + c.description + "</textarea>";
         str += "</td>";
         if (c.type == "ebi_cdef_solution") {
             str += "<td>";
@@ -532,6 +532,7 @@ function ebi_moded_render_domain() {
     str += "  </div>";
     str += "</td></tr>";
     $("#moded-domain-table tbody").html(str);
+    $("#moded-domain-table tbody .hidden-bydef").hidden_bydef();
 }
 
 function ebi_moded_spc_list_format(list) {
