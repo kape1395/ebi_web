@@ -14,6 +14,7 @@
 
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/ebi_moded.css">
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
@@ -88,128 +89,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="moded">
-                    <ul class="breadcrumb">
-                        <li style="display: block;"><h3 class="moded_mode"></h3></li>
-                        <li><a href="#moded-general">General</a> <span class="divider">&raquo;</span></li>
-                        <li><a href="#moded-species">Species</a> <span class="divider">&raquo;</span></li>
-                        <li><a href="#moded-reactions">Reactions</a> <span class="divider">&raquo;</span></li>
-                        <li><a href="#moded-domain">Domain</a> <span class="divider">&raquo;</span></li>
-                        <li><a href="#moded-parameters">Parameters</a> <span class="divider">&raquo;</span></li>
-                        <li><a href="#moded-done">Done</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div id="moded-general">
-                            <form class="form-horizontal">
-                                <div class="control-group">
-                                    <label class="control-label" for="moded-gen-name">Name</label>
-                                    <div class="controls">
-                                        <input type="text" id="moded-gen-name" placeholder="Short name" class="input-xxlarge">
-                                    </div>
-                                </div>
-                                <div class="control-group">
-                                    <label class="control-label" for="moded-gen-desc">Description</label>
-                                    <div class="controls">
-                                        <textarea id="moded-gen-desc" placeholder="Model description" class="input-xxlarge"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-actions">
-                                    <a href="#moded-species" class="btn btn-primary pull-right">Next: define species</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="moded-species">
-                            <form>
-                                <table class="table table-condensed" id="moded-species-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Description</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                                <div class="clearfix"></div>
-                                <div class="form-actions">
-                                    <a href="#moded-general" class="btn pull-left">Back to general info</a>
-                                    <a href="#moded-reactions" class="btn btn-primary pull-right">Next: define reactions</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="moded-reactions">
-                            <form>
-                                <table class="table" id="moded-reactions-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name<br>Description</th>
-                                            <th>Parameters</th>
-                                            <th>Rate equation</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                                <div class="form-actions">
-                                    <a href="#moded-species" class="btn pull-left">Back to species definitions</a>
-                                    <a href="#moded-domain" class="btn btn-primary pull-right">Next: define domain</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="moded-domain">
-                            <form>
-                                <table class="table" id="moded-domain-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name<br>Description</th>
-                                            <th>Parameters</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                                <div class="form-actions">
-                                    <a href="#moded-reactions" class="btn pull-left">Back to reaction definitions</a>
-                                    <a href="#moded-parameters" class="btn btn-primary pull-right">Next: define parameters</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="moded-parameters">
-                            <form>
-                                <div class="form-actions">
-                                    <a href="#moded-domain" class="btn pull-left">Back to domain definition</a>
-                                    <a href="#moded-done" class="btn btn-primary pull-right">Next: validate and save</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                        <div id="moded-done">
-                            <form>
-                                <div class="form-actions">
-                                    <a href="#moded-parameters" class="btn pull-left">Back to parameter definitions</a>
-                                    <a href="#moded-save" class="btn btn-primary pull-right">Save</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
-                                    <span class="divider pull-right">&nbsp;&nbsp;</span>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                <div id="ebi_moded"></div>
             </div>
             <div id="page-footer">
                 EBI, &copy; Biomoda, 2012-2013
@@ -220,6 +100,7 @@
         <script src="js/vendor/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script src="js/plugins.js"></script>
         <script src="js/hidden_bydef.js"></script>
+        <script src="js/ebi_moded.js"></script>
         <script src="js/main.js"></script>
         <script type="text/javascript">
             $(document).ready(function () {

@@ -1,0 +1,125 @@
+<!--
+ !  HTML fragment for EBI Model Editor component markup.
+ !-->
+<div class="moded">
+    <ul class="breadcrumb moded_tabs">
+        <li style="display: block;"><h3 class="moded_mode"></h3></li>
+        <li><a href="#moded-general">General</a> <span class="divider">&raquo;</span></li>
+        <li><a href="#moded-species">Species</a> <span class="divider">&raquo;</span></li>
+        <li><a href="#moded-reactions">Reactions</a> <span class="divider">&raquo;</span></li>
+        <li><a href="#moded-domain">Domain</a> <span class="divider">&raquo;</span></li>
+        <li><a href="#moded-parameters">Parameters</a> <span class="divider">&raquo;</span></li>
+        <li><a href="#moded-done">Done</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="moded-general">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="moded-gen-name">Name</label>
+                    <div class="controls">
+                        <input type="text" placeholder="Short name" class="input-xxlarge moded-gen-name">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="moded-gen-desc">Description</label>
+                    <div class="controls">
+                        <textarea placeholder="Model description" class="input-xxlarge moded-gen-desc"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <a href="#moded-species" class="btn btn-primary pull-right">Next: define species</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+        <div class="moded-species">
+            <form>
+                <table class="table table-condensed moded-species-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="clearfix"></div>
+                <div class="form-actions">
+                    <a href="#moded-general" class="btn pull-left">Back to general info</a>
+                    <a href="#moded-reactions" class="btn btn-primary pull-right">Next: define reactions</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+        <div class="moded-reactions">
+            <form>
+                <table class="table moded-reactions-table">
+                    <thead>
+                        <tr>
+                            <th>Name<br>Description</th>
+                            <th>Parameters</th>
+                            <th>Rate equation</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="form-actions">
+                    <a href="#moded-species" class="btn pull-left">Back to species definitions</a>
+                    <a href="#moded-domain" class="btn btn-primary pull-right">Next: define domain</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+        <div class="moded-domain">
+            <form>
+                <table class="table moded-domain-table">
+                    <thead>
+                        <tr>
+                            <th>Name<br>Description</th>
+                            <th>Parameters</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="form-actions">
+                    <a href="#moded-reactions" class="btn pull-left">Back to reaction definitions</a>
+                    <a href="#moded-parameters" class="btn btn-primary pull-right">Next: define parameters</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+        <div class="moded-parameters">
+            <form>
+                <div class="form-actions">
+                    <a href="#moded-domain" class="btn pull-left">Back to domain definition</a>
+                    <a href="#moded-done" class="btn btn-primary pull-right">Next: validate and save</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+        <div class="moded-done">
+            <form>
+                <div class="form-actions">
+                    <a href="#moded-parameters" class="btn pull-left">Back to parameter definitions</a>
+                    <a href="#moded-save" class="btn btn-primary pull-right">Save</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                    <a href="#moded-cancel" class="btn pull-right">Cancel</a>
+                    <span class="divider pull-right">&nbsp;&nbsp;</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

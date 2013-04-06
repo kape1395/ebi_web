@@ -1,0 +1,58 @@
+
+table.moded-reactions-table {
+    vertical-align: middle;
+}
+
+div.model-reaction-simple {
+    width: 520px;
+}
+div.model-reaction-simple input.reagent {
+    width: 160px;
+    float:left;
+    margin-top: 20px;
+}
+div.model-reaction-simple input.product {
+    width: 160px;
+    float:right;
+    margin-top: 20px;
+}
+div.model-reaction-simple div.rate {
+    width: 160px;
+    margin: 0px auto;
+}
+div.model-reaction-simple div.rate input {
+    width: 50%;
+    margin: 1px auto;
+    display: block;
+}
+div.model-reaction-simple div.rate svg {
+    width: 95%;
+    height: 10px;
+    margin: 5px auto;
+    display: block;
+}
+
+div.model-reaction-michaelis {
+    width: 520px;
+}
+div.model-reaction-michaelis table {
+    border: none;
+}
+div.model-reaction-michaelis tr {
+    border: none;
+}
+div.model-reaction-michaelis td {
+    border: none;
+    padding: 3px 5px;
+}
+div.model-reaction-michaelis input {
+    width: 160px;
+    margin-right: 10px;
+}
+
+
+
+.moded-current-step {
+    font-weight: bold;
+}
+
