@@ -43,6 +43,11 @@ handle_request([?APP, ?API], 'GET', _Arg) ->
         {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
     ];
 
+
+%%
+%%  Biosensor resources
+%%
+
 handle_request([?APP, ?API, "biosensor"], 'GET', _Arg) ->
     [
         {status, 200},
@@ -55,6 +60,10 @@ handle_request([?APP, ?API, "biosensor", _BiosensorId], 'GET', _Arg) ->
         {content, ?MEDIATYPE_JSON, jiffy:encode({[]})}
     ];
 
+%%
+%%  Model resources
+%%
+
 handle_request([?APP, ?API, "model"], 'GET', _Arg) ->
     {ok, Models} = ebi_store:get_models(all),
     [
@@ -63,7 +72,9 @@ handle_request([?APP, ?API, "model"], 'GET', _Arg) ->
     ];
 
 handle_request([?APP, ?API, "model"], 'POST', Arg) ->
-    lager:info("MODEL POST: ~p", [Arg]),
+    PostedModel = ebi_web_model_json:decode(jiffy:decode(Arg#arg.clidata)),
+    SavedModel = PostedModel#model{id = undefined, ref = undefined},
+    ebi_store:add_model(SavedModel),
     {status, 200};
 
 handle_request([?APP, ?API, "model", ModelId], 'GET', _Arg) ->
@@ -74,8 +85,15 @@ handle_request([?APP, ?API, "model", ModelId], 'GET', _Arg) ->
     ];
 
 handle_request([?APP, ?API, "model", ModelId], 'PUT', Arg) ->
-    lager:info("MODEL PUT[~p]: ~p", [ModelId, Arg]),
+    PostedModel = ebi_web_model_json:decode(jiffy:decode(Arg#arg.clidata)),
+    SavedModel = PostedModel#model{id = ModelId, ref = undefined},
+    ebi_store:add_model(SavedModel),
     {status, 200};
+
+%%
+%%  Other resources
+%%
+
 
 %% -----------------------------------------------------------------------------
 %%  GUI
