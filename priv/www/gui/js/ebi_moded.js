@@ -164,27 +164,6 @@
                 render_domain($this);
             });
 
-            $this.on("change", ".moded-comp-diffusion", function () {
-                var idx = $(this).closest("tr.moded_comp").data("idx");
-                var comp = get_model($this).definition.compartments[idx];
-                comp.definition.diffusion = $(this).val();
-            });
-            $this.on("click", "a[href='#moded-comp-species-expand']", function () {
-                var mdef = get_model($this).definition;
-                var comp = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")];
-                var spcs = mdef.species;
-                var cspc = [];
-                for (var i = 0; i < spcs.length; i++) {
-                    cspc.push({
-                        species: spcs[i].name,
-                        diffusion: comp.definition.diffusion,
-                        concentration: 0
-                    });
-                }
-                comp.definition.species = cspc;
-                render_domain($this);
-            });
-
             function unassign_spc_in_conds(cdef, spc) {
                 if (cdef.conditions == undefined) {
                     cdef.conditions = [];
@@ -276,6 +255,32 @@
                 var reac = $(this).data("reac");
                 cdef.el_reaction = reac;
                 render_domain($this);
+            });
+            $this.on("change", ".moded-comp-name", function () {
+                var idx = $(this).closest("tr.moded_comp").data("idx");
+                get_model($this).definition.compartments[idx].name = $(this).val();
+            });
+            $this.on("change", ".moded-comp-desc", function () {
+                var idx = $(this).closest("tr.moded_comp").data("idx");
+                get_model($this).definition.compartments[idx].description = $(this).val();
+            });
+            $this.on("change", ".moded-comp-thns", function () {
+                var idx = $(this).closest("tr.moded_comp").data("idx");
+                var cmp = get_model($this).definition.compartments[idx];
+                switch (cmp.type) {
+                case "ebi_cdef_solution":
+                    cmp.definition.nernst_thickness = $(this).val();
+                    break;
+                case "ebi_cdef_diffusive":
+                    cmp.definition.thickness = $(this).val();
+                    break;
+                }
+            });
+            $this.on("change", ".moded-comp-diff-diffcoef", function () {
+                var cnd = $(this).data("cnd");
+                var idx = $(this).closest("tr.moded_comp").data("idx");
+                var cmp = get_model($this).definition.compartments[idx];
+                cmp.definition.conditions[cnd].diffcoef = $(this).val();
             });
 
             do_create.call($this);
@@ -578,7 +583,7 @@
             str += "</td><td>";
             switch (cnd.type) {
             case "diff":
-                str += " - afected by diffusion, coef. = <input type='text'>";
+                str += " - afected by diffusion, coef. = <input type='text' class='moded-comp-diff-diffcoef' data-cnd='" + i + "' value='" + n(cnd.diffcoef) + "'>";
                 break;
             case "imob":
                 str += " - immobilized";
