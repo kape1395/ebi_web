@@ -50,239 +50,8 @@
                 render_species($this);
             });
 
-            //
-            //  Reactions
-            //
-            $this.on("change", ".moded-rea-name", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].name = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-desc", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].description = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-mm-s", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.substrate = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-mm-p", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.product = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-mm-vmax", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.vmax = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-mm-km", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.km = $(this).val();
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-sm-r", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.reagents = spc_list_parse($(this).val());
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-sm-p", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.products = spc_list_parse($(this).val())
-                render_reactions($this);
-            });
-            $this.on("change", ".moded-rea-sm-k", function () {
-                get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.rateconst = $(this).val();
-                render_reactions($this);
-            });
-
-            $this.on("click", "a[href='#moded-reaction-add-sm']", function () {
-                get_model($this).definition.reactions.push({
-                    name: "",
-                    description: "",
-                    type: "ebi_rdef_simple",
-                    definition: {
-                        reagents: [],
-                        products: [],
-                        rateconst: ""
-                    }
-                });
-                render_reactions($this);
-            });
-            $this.on("click", "a[href='#moded-reaction-add-mm']", function () {
-                get_model($this).definition.reactions.push({
-                    name: "",
-                    description: "",
-                    type: "ebi_rdef_mm",
-                    definition: {
-                        substrate: "",
-                        product: "",
-                        vmax: "",
-                        km: ""
-                    }
-                });
-                render_reactions($this);
-            });
-            $this.on("click", "a[href='#moded-reaction-rem']", function () {
-                get_model($this).definition.reactions.splice($(this).closest("tr").data("idx"), 1);
-                render_reactions($this);
-            });
-
-            //
-            //  Domain / Compartments
-            //
-            AddCompFun = function (type) {
-                get_model($this).definition.compartments.push({
-                    name: "",
-                    description: "",
-                    type: type,
-                    definition: {
-                    }
-                });
-                render_domain($this);
-            }
-            $this.on("click", "a[href='#moded-comp-add-solution']",        function () { AddCompFun("ebi_cdef_solution"); });
-            $this.on("click", "a[href='#moded-comp-add-diffusive']",       function () { AddCompFun("ebi_cdef_diffusive"); });
-            $this.on("click", "a[href='#moded-comp-add-solid_electrode']", function () { AddCompFun("ebi_cdef_solid_electrode"); });
-            $this.on("click", "a[href='#moded-comp-add-insulating']",      function () { AddCompFun("ebi_cdef_insulating"); });
-            $this.on("click", "a[href='#moded-comp-remove']", function () {
-                get_model($this).definition.compartments.splice($(this).closest("tr").data("idx"), 1);
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-moveup']", function () {
-                var idx = $(this).closest("tr").data("idx");
-                var cmps = get_model($this).definition.compartments;
-                if (idx > 0) {
-                    var tmp = cmps[idx - 1];
-                    cmps[idx - 1] = cmps[idx];
-                    cmps[idx] = tmp;
-                }
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-movedn']", function () {
-                var idx = $(this).closest("tr").data("idx");
-                var cmps = get_model($this).definition.compartments;
-                if (idx < cmps.length - 1) {
-                    var tmp = cmps[idx + 1];
-                    cmps[idx + 1] = cmps[idx];
-                    cmps[idx] = tmp;
-                }
-                render_domain($this);
-            });
-
-            function unassign_spc_in_conds(cdef, spc) {
-                if (cdef.conditions == undefined) {
-                    cdef.conditions = [];
-                }
-                for (var i = 0; i < cdef.conditions.length; i++) {
-                    var cnd = cdef.conditions[i];
-                    for (var j = 0; j < cnd.species.length; j++) {
-                        if (cnd.species[j] == spc) {
-                            cnd.species.splice(j, 1);
-                        }
-                    }
-                    if (cnd.species.length == 0) {
-                        cdef.conditions.splice(i, 1);
-                    }
-                }
-            }
-            $this.on("click", "a[href='#moded-comp-diff-cnd']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var spc  = $(this).data("spc");
-                var cnd  = $(this).data("cnd");
-                unassign_spc_in_conds(cdef, spc);
-                cdef.conditions[cnd].species.push(spc);
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-diff-diff']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var spc  = $(this).data("spc");
-                unassign_spc_in_conds(cdef, spc);
-                cdef.conditions.push({species: [spc], type: "diff", diffusion: 0});
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-diff-imob']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var spc  = $(this).data("spc");
-                var found = false;
-                unassign_spc_in_conds(cdef, spc);
-                for (var i = 0; i < cdef.conditions.length; i++) {
-                    if (cdef.conditions[i].type == "imob") {
-                        cdef.conditions[i].species.push(spc);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    cdef.conditions.push({species: [spc], type: "imob"});
-                }
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-diff-none']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var spc  = $(this).data("spc");
-                unassign_spc_in_conds(cdef, spc);
-                render_domain($this);
-            });
-
-            $this.on("click", "a[href='#moded-comp-reac-add']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var reac = $(this).data("reac");
-                var crs = cdef.reactions;
-                if (crs == null || crs == undefined) {
-                    cdef.reactions = crs = [];
-                }
-                crs.push(reac);
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-reac-rem']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var reac = $(this).data("reac");
-                var crs = cdef.reactions;
-                if (crs == null || crs == undefined) {
-                    cdef.reactions = crs = [];
-                }
-                for (var i = 0; i < crs.length; i++) {
-                    if (crs[i] == reac) {
-                        crs.splice(i, 1);
-                    }
-                }
-                render_domain($this);
-            });
-            $this.on("click", "a[href='#moded-comp-solel-reac']", function () {
-                var mdef = get_model($this).definition;
-                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
-                var reac = $(this).data("reac");
-                cdef.el_reaction = reac;
-                render_domain($this);
-            });
-            $this.on("change", ".moded-comp-name", function () {
-                var idx = $(this).closest("tr.moded_comp").data("idx");
-                get_model($this).definition.compartments[idx].name = $(this).val();
-            });
-            $this.on("change", ".moded-comp-desc", function () {
-                var idx = $(this).closest("tr.moded_comp").data("idx");
-                get_model($this).definition.compartments[idx].description = $(this).val();
-            });
-            $this.on("change", ".moded-comp-thns", function () {
-                var idx = $(this).closest("tr.moded_comp").data("idx");
-                var cmp = get_model($this).definition.compartments[idx];
-                switch (cmp.type) {
-                case "ebi_cdef_solution":
-                    cmp.definition.nernst_thickness = $(this).val();
-                    break;
-                case "ebi_cdef_diffusive":
-                    cmp.definition.thickness = $(this).val();
-                    break;
-                }
-            });
-            $this.on("change", ".moded-comp-diff-diffcoef", function () {
-                var cnd = $(this).data("cnd");
-                var idx = $(this).closest("tr.moded_comp").data("idx");
-                var cmp = get_model($this).definition.compartments[idx];
-                cmp.definition.conditions[cnd].diffcoef = $(this).val();
-            });
-
+            reactions_init($this);
+            domain_init($this);
             do_create.call($this);
         });
     }
@@ -312,6 +81,7 @@
         var $this = $(this);
         $.getJSON(api_url("model/" + modelId), function (data, textStatus, jqXHR) {
             $this.find(".moded_mode").html("Editing " + data.name + " (" + data.id + ").");
+            domain_cond_extract(data);
             set_model($this, data);
             render($this);
             show_general($this);
@@ -325,6 +95,7 @@
             data.id = null;
             data.ref = null;
             data.name = "Copy of " + data.name;
+            domain_cond_extract(data);
             set_model($this, data);
             render($this);
             show_general($this);
@@ -382,6 +153,76 @@
         $this.find(".moded-species-table tbody").html(str);
     }
 
+    function reactions_init($this) {
+        $this.on("change", ".moded-rea-name", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].name = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-desc", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].description = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-mm-s", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.substrate = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-mm-p", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.product = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-mm-vmax", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.vmax = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-mm-km", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.km = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-r", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.reagents = spc_list_parse($(this).val());
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-p", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.products = spc_list_parse($(this).val())
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-k", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.rateconst = $(this).val();
+            render_reactions($this);
+        });
+
+        $this.on("click", "a[href='#moded-reaction-add-sm']", function () {
+            get_model($this).definition.reactions.push({
+                name: "",
+                description: "",
+                type: "ebi_rdef_simple",
+                definition: {
+                    reagents: [],
+                    products: [],
+                    rateconst: ""
+                }
+            });
+            render_reactions($this);
+        });
+        $this.on("click", "a[href='#moded-reaction-add-mm']", function () {
+            get_model($this).definition.reactions.push({
+                name: "",
+                description: "",
+                type: "ebi_rdef_mm",
+                definition: {
+                    substrate: "",
+                    product: "",
+                    vmax: "",
+                    km: ""
+                }
+            });
+            render_reactions($this);
+        });
+        $this.on("click", "a[href='#moded-reaction-rem']", function () {
+            get_model($this).definition.reactions.splice($(this).closest("tr").data("idx"), 1);
+            render_reactions($this);
+        });
+    }
     function render_reactions($this) {
         var model = get_model($this);
         var str = "";
@@ -450,6 +291,238 @@
     }
 
 
+
+    // -------------------------------------------------------------------------
+    //  Domain / compartments
+    // -------------------------------------------------------------------------
+
+    function domain_init($this) {
+        AddCompFun = function (type) {
+            get_model($this).definition.compartments.push({
+                name: "",
+                description: "",
+                type: type,
+                definition: {
+                }
+            });
+            render_domain($this);
+        }
+        $this.on("click", "a[href='#moded-comp-add-solution']",        function () { AddCompFun("ebi_cdef_solution"); });
+        $this.on("click", "a[href='#moded-comp-add-diffusive']",       function () { AddCompFun("ebi_cdef_diffusive"); });
+        $this.on("click", "a[href='#moded-comp-add-solid_electrode']", function () { AddCompFun("ebi_cdef_solid_electrode"); });
+        $this.on("click", "a[href='#moded-comp-add-insulating']",      function () { AddCompFun("ebi_cdef_insulating"); });
+        $this.on("click", "a[href='#moded-comp-remove']", function () {
+            get_model($this).definition.compartments.splice($(this).closest("tr").data("idx"), 1);
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-moveup']", function () {
+            var idx = $(this).closest("tr").data("idx");
+            var cmps = get_model($this).definition.compartments;
+            if (idx > 0) {
+                var tmp = cmps[idx - 1];
+                cmps[idx - 1] = cmps[idx];
+                cmps[idx] = tmp;
+            }
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-movedn']", function () {
+            var idx = $(this).closest("tr").data("idx");
+            var cmps = get_model($this).definition.compartments;
+            if (idx < cmps.length - 1) {
+                var tmp = cmps[idx + 1];
+                cmps[idx + 1] = cmps[idx];
+                cmps[idx] = tmp;
+            }
+            render_domain($this);
+        });
+
+        function unassign_spc_in_conds(cdef, spc) {
+            if (cdef.conditions == undefined) {
+                cdef.conditions = [];
+            }
+            for (var i = 0; i < cdef.conditions.length; i++) {
+                var cnd = cdef.conditions[i];
+                for (var j = 0; j < cnd.species.length; j++) {
+                    if (cnd.species[j] == spc) {
+                        cnd.species.splice(j, 1);
+                    }
+                }
+                if (cnd.species.length == 0) {
+                    cdef.conditions.splice(i, 1);
+                }
+            }
+        }
+        $this.on("click", "a[href='#moded-comp-diff-cnd']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var spc  = $(this).data("spc");
+            var cnd  = $(this).data("cnd");
+            unassign_spc_in_conds(cdef, spc);
+            cdef.conditions[cnd].species.push(spc);
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-diff-diff']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var spc  = $(this).data("spc");
+            unassign_spc_in_conds(cdef, spc);
+            cdef.conditions.push({species: [spc], type: "diff", diffusion: 0});
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-diff-imob']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var spc  = $(this).data("spc");
+            var found = false;
+            unassign_spc_in_conds(cdef, spc);
+            for (var i = 0; i < cdef.conditions.length; i++) {
+                if (cdef.conditions[i].type == "imob") {
+                    cdef.conditions[i].species.push(spc);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                cdef.conditions.push({species: [spc], type: "imob"});
+            }
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-diff-none']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var spc  = $(this).data("spc");
+            unassign_spc_in_conds(cdef, spc);
+            render_domain($this);
+        });
+
+        $this.on("click", "a[href='#moded-comp-reac-add']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var reac = $(this).data("reac");
+            var crs = cdef.reactions;
+            if (crs == null || crs == undefined) {
+                cdef.reactions = crs = [];
+            }
+            crs.push(reac);
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-reac-rem']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var reac = $(this).data("reac");
+            var crs = cdef.reactions;
+            if (crs == null || crs == undefined) {
+                cdef.reactions = crs = [];
+            }
+            for (var i = 0; i < crs.length; i++) {
+                if (crs[i] == reac) {
+                    crs.splice(i, 1);
+                }
+            }
+            render_domain($this);
+        });
+        $this.on("click", "a[href='#moded-comp-solel-reac']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var reac = $(this).data("reac");
+            cdef.el_reaction = reac;
+            render_domain($this);
+        });
+        $this.on("change", ".moded-comp-name", function () {
+            var idx = $(this).closest("tr.moded_comp").data("idx");
+            get_model($this).definition.compartments[idx].name = $(this).val();
+        });
+        $this.on("change", ".moded-comp-desc", function () {
+            var idx = $(this).closest("tr.moded_comp").data("idx");
+            get_model($this).definition.compartments[idx].description = $(this).val();
+        });
+        $this.on("change", ".moded-comp-thns", function () {
+            var idx = $(this).closest("tr.moded_comp").data("idx");
+            var cmp = get_model($this).definition.compartments[idx];
+            switch (cmp.type) {
+            case "ebi_cdef_solution":
+                cmp.definition.nernst_thickness = $(this).val();
+                break;
+            case "ebi_cdef_diffusive":
+                cmp.definition.thickness = $(this).val();
+                break;
+            }
+        });
+        $this.on("change", ".moded-comp-diff-diffcoef", function () {
+            var cnd = $(this).data("cnd");
+            var idx = $(this).closest("tr.moded_comp").data("idx");
+            var cmp = get_model($this).definition.compartments[idx];
+            cmp.definition.conditions[cnd].diffcoef = $(this).val();
+        });
+    }
+
+    function domain_cond_extract(model) {
+        console.log("domain_cond_extract: " + JSON.stringify(model));
+        var cmps = model.definition.compartments;
+        if (cmps == null || cmps == undefined) {
+            cmps = model.definition.compartments = [];
+        }
+        for (var i = 0; i < cmps.length; i++) {
+            var cdef = cmps[i].definition;
+            var cnds = cdef.conditions = [];
+
+            if (cdef.species == null || cdef.species == undefined) {
+                cdef.species = [];
+            }
+            for (var j = 0; j < cdef.species.length; j++) {
+                var spc = cdef.species[j];
+                if (spc.diffusion == null) {
+                    var found = false;
+                    for (var k = 0; k < cnds.length; k++) {
+                        if (cnds[k].type == "imob") {
+                            cnds[k].species.push(spc.species);
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        cnds.push({type: "imob", species: [spc.species]});
+                    }
+                } else {
+                    var found = false;
+                    for (var k = 0; k < cnds.length; k++) {
+                        if (cnds[k].type == "diff" && cnds[k].diffcoef == spc.diffusion) {
+                            cnds[k].species.push(spc.species);
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        cnds.push({type: "diff", species: [spc.species], diffcoef: spc.diffusion});
+                    }
+                }
+            }
+            console.log("domain_cond_extract[" + i + "]: " + JSON.stringify(cdef));
+        }
+    }
+
+    function domain_cond_apply(model) {
+        console.log("domain_cond_apply: " + JSON.stringify(model));
+        var cmps = model.definition.compartments;
+        for (var i = 0; i < cmps.length; i++) {
+            var cdef = cmps[i].definition;
+            var spcs = cdef.species = [];
+
+            if (cdef.conditions != null && cdef.conditions != undefined) {
+                for (var j = 0; j < cdef.conditions.length; j++) {
+                    var cnd = cdef.conditions[j];
+                    for (var k = 0; k < cnd.species.length; k++) {
+                        switch (cnd.type) {
+                        case "diff":
+                            spcs.push({species: cnd.species[k], diffusion: cnd.diffcoef, concentration: null});
+                            break;
+                        case "imob":
+                            spcs.push({species: cnd.species[k], diffusion: null, concentration: null});
+                        }
+                    }
+                }
+                console.log("domain_cond_apply[" + i + "]: " + JSON.stringify(cdef));
+            }
+        }
+    }
 
     function render_domain($this) {
         var model = get_model($this);
@@ -716,6 +789,7 @@
 
     function save($this) {
         var model = get_model($this);
+        domain_cond_apply(model);
         if (model.id == null) {
             $.ajax({
                 type: "POST",
