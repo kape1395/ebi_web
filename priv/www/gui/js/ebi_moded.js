@@ -138,6 +138,86 @@
                 render_domain($this);
             });
 
+            $this.on("change", ".moded-comp-diffusion", function () {
+                var idx = $(this).closest("tr.moded_comp").data("idx");
+                var comp = get_model($this).definition.compartments[idx];
+                comp.definition.diffusion = $(this).val();
+            });
+            $this.on("click", "a[href='#moded-comp-species-expand']", function () {
+                var mdef = get_model($this).definition;
+                var comp = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")];
+                var spcs = mdef.species;
+                var cspc = [];
+                for (var i = 0; i < spcs.length; i++) {
+                    cspc.push({
+                        species: spcs[i].name,
+                        diffusion: comp.definition.diffusion,
+                        concentration: 0
+                    });
+                }
+                comp.definition.species = cspc;
+                render_domain($this);
+            });
+
+            function unassign_spc_in_conds(cdef, spc) {
+                if (cdef.conditions == undefined) {
+                    cdef.conditions = [];
+                }
+                for (var i = 0; i < cdef.conditions.length; i++) {
+                    var cnd = cdef.conditions[i];
+                    for (var j = 0; j < cnd.species.length; j++) {
+                        if (cnd.species[j] == spc) {
+                            cnd.species.splice(j, 1);
+                        }
+                    }
+                    if (cnd.species.length == 0) {
+                        cdef.conditions.splice(i, 1);
+                    }
+                }
+            }
+            $this.on("click", "a[href='#moded-comp-diff-cnd']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var spc  = $(this).data("spc");
+                var cnd  = $(this).data("cnd");
+                unassign_spc_in_conds(cdef, spc);
+                cdef.conditions[cnd].species.push(spc);
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-diff-diff']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var spc  = $(this).data("spc");
+                unassign_spc_in_conds(cdef, spc);
+                cdef.conditions.push({species: [spc], type: "diff", diffusion: 0});
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-diff-imob']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var spc  = $(this).data("spc");
+                var found = false;
+                unassign_spc_in_conds(cdef, spc);
+                for (var i = 0; i < cdef.conditions.length; i++) {
+                    if (cdef.conditions[i].type == "imob") {
+                        cdef.conditions[i].species.push(spc);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    cdef.conditions.push({species: [spc], type: "imob"});
+                }
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-diff-none']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var spc  = $(this).data("spc");
+                unassign_spc_in_conds(cdef, spc);
+                render_domain($this);
+            });
+
             do_create.call($this);
         });
     }
@@ -249,7 +329,7 @@
             str += "</td>";
             if (r.type == "ebi_rdef_simple") {
                 str += "<td>";
-                str += "  <div class='model-reaction-simple'>";
+                str += "  <div class='moded-reaction-simple'>";
                 str += "    <input type='text' placeholder='Reagents' title='Example: 2 S1 + S2' class='reagent moded-rea-sm-r' value='" + spc_list_format(r.definition.reagents) + "'/>";
                 str += "    <input type='text' placeholder='Products' title='Example: P'         class='product moded-rea-sm-p' value='" + spc_list_format(r.definition.products) + "'/>";
                 str += "    <div class='rate'>";
@@ -269,7 +349,7 @@
                 str += "<td>" + ebi_mml_reaction_rate(r) + "</td>";
             } else if (r.type == "ebi_rdef_mm") {
                 str += "<td>";
-                str += "<div class='model-reaction-michaelis'>";
+                str += "<div class='moded-reaction-michaelis'>";
                 str += "  <table class=''><tbody><tr data-idx='" + i + "'>";
                 str += "    <td class='text-right'>Substrate:</td>";
                 str += "    <td><input type='text' placeholder='Substrate' title='Substrate, example: S1' value='" + r.definition.substrate + "' class='moded-rea-mm-s'/></td>";
@@ -309,31 +389,25 @@
         var str = "";
         for (var i = 0; i < model.definition.compartments.length; i++) {
             var c = model.definition.compartments[i];
-            str += "<tr data-idx='" + i + "'>";
+            str += "<tr data-idx='" + i + "' class='moded_comp'>";
             str += "<td>";
             str += "    " + c.type + "<br>";
             str += "    <input type='text' placeholder='Compartment name' value='" + c.name + "' class='moded-comp-name input-medium'/><br>";
             str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium hidden-bydef'>" + c.description + "</textarea>";
             str += "</td>";
+            str += "<td>";
             if (c.type == "ebi_cdef_solution") {
-                str += "<td>";
-                str += "solution...";
-                str += "</td>";
+                str += render_compartment_species(model.definition.species, c);
             } else if (c.type == "ebi_cdef_diffusive") {
-                str += "<td>";
-                str += "diffusive...";
-                str += "</td>";
+                str += render_compartment_species_v2(model.definition.species, c);
             } else if (c.type == "ebi_cdef_solid_electrode") {
-                str += "<td>";
                 str += "solid_electrode...";
-                str += "</td>";
             } else if (c.type == "ebi_cdef_insulating") {
-                str += "<td>";
                 str += "insulating...";
-                str += "</td>";
             } else {
-                str += "<td>Unsupported</td>";
+                str += "Unsupported";
             }
+            str += "</td>";
             str += "<td><a href='#moded-comp-rem' class='btn pull-right'>Remove</a></td>";
             str += "</tr>";
         }
@@ -350,6 +424,141 @@
         str += "</td></tr>";
         $this.find(".moded-domain-table tbody").html(str);
         $this.find(".moded-domain-table tbody .hidden-bydef").hidden_bydef();
+    }
+
+    function render_compartment_species(species, compartment) {
+        var spcs = compartment.definition.species;
+        var str = "";
+        str += "<div class='moded-comp-species'><table>";
+        if (spcs != null && spcs != undefined && spcs.length > 0) {
+            str += "<caption>Species</caption>";
+            str += "<thead><tr><th>Name</th><th>Diff. coef.</th><th>Initial conc.</th></tr></thhead>";
+            str += "<tbody>";
+            for (var i = 0; i < species.length; i++) {
+                var spc = null;
+                for (var j = 0; j < spcs.length; j++) {
+                    if (spcs[j].species == species[i].name) {
+                        spc = spcs[j];
+                        break;
+                    }
+                }
+                str += "<tr><td>" + species[i].name + "</td>";
+                if (spc != null) {
+                    str += "<td>" + spc.diffusion + "</td>";
+                    str += "<td>" + spc.concentration + "</td>";
+                } else {
+                    str += "<td>???</td>";
+                    str += "<td>???</td>";
+                }
+                str += "</tr>";
+            }
+            str += "</tbody>";
+        } else {
+            str += "<caption>Species (<a href='#moded-comp-species-expand'>expand</a>)</caption>";
+            str += "<tr><td>";
+            str += "<label>Diffusion coeficient</label><input type='text' class='moded-comp-diffusion'>";
+            str += "</td></tr>";
+            str += "</tbody>";
+        }
+        str += "</tbody></table></div>";
+        return str;
+    }
+
+    function render_compartment_species_v2(species, compartment) {
+        var cnds = compartment.definition.conditions;
+        var str = "";
+        var selected;
+        var other, snames;
+        str += "<div class='moded-comp-cond'>";
+        snames = [];
+        for (var i = 0; i < species.length; i++) {
+            snames.push(species[i].name);
+        }
+        if (cnds == null || cnds == undefined) {
+            cnds = [];
+        }
+
+        function separator(index, length) {
+            var s = "";
+            if (index > 0 && index == length - 1) {
+                s += ", ";  // " and ";
+            } else if (index > 0) {
+                s += ", ";
+            }
+            return s;
+        }
+        function species_dropdown(spcName, cndIndex) {
+            var s = "";
+            s += "<span class='dropdown'>";
+            s += "<a href='#' class='dropdown-toggle' data-toggle='dropdown'>" + spcName + "</a>";
+            s += "<ul class='dropdown-menu'>";
+            for (var i = 0; i < cnds.length; i++) {
+                if (cnds[i].type == "diff" && i != cndIndex) {
+                    s += "<li><a data-spc='" + spcName + "' data-cnd='" + i;
+                    s += "' href='#moded-comp-diff-cnd'>" + spcName + " has the same diffusion as ";
+                    for (var j = 0; j < cnds[i].species.length; j++) {
+                        s += separator(j, cnds[i].species.length);
+                        s += "<b>" + cnds[i].species[j] + "</b>";
+                    }
+                    s += "</a></li>";
+                }
+            }
+            s += "<li><a data-spc='" + spcName + "' href='#moded-comp-diff-diff'>" + spcName + " is affected by diffusion</a></li>";
+            if (cndIndex == undefined || cnds[cndIndex].type != "imob") {
+                s += "<li><a data-spc='" + spcName + "' href='#moded-comp-diff-imob'>" + spcName + " is immobilized</a></li>";
+            }
+            if (cndIndex != undefined) {
+                s += "<li><a data-spc='" + spcName + "' href='#moded-comp-diff-none'>" + spcName + " is not present here</a></li>";
+            }
+            s += "</ul>";
+            s += "</span>";
+            return s;
+        }
+
+        str += "<div class='moded-comp-diff'>";
+        str += "<table><caption>Species</caption>";
+        str += "<tbody>";
+        other = snames.slice(0);
+        selected = [];
+        for (var i = 0; i < cnds.length; i++) {
+            var cnd = cnds[i];
+            str += "<tr><td>";
+            for (var j = 0; j < cnd.species.length; j++) {
+                str += separator(j, cnd.species.length);
+                str += species_dropdown(cnd.species[j], i);
+
+                for (var k = 0; k < other.length; k++) {
+                    if (other[k] == cnd.species[j]) {
+                        other.splice(k, 1);
+                    }
+                }
+                selected.push(cnd.species[j]);
+            }
+            str += "</td><td>";
+            switch (cnd.type) {
+            case "diff":
+                str += " - afected by diffusion, coef. = <input type='text'>";
+                break;
+            case "imob":
+                str += " - immobilized";
+                break;
+            default:
+                str += "???";
+            }
+            str += "</td></tr>";
+        }
+        if (other.length > 0) {
+            str += "<tr><td>";
+            for (var j = 0; j < other.length; j++) {
+                str += separator(j, other.length);
+                str += species_dropdown(other[j], undefined);
+            }
+            str += "</td><td> - not presented here</td></tr>";
+        }
+        str += "</tbody></tbody></table></div>";
+
+        str += "<span class='clearfix'></span></div>";
+        return str;
     }
 
     // -------------------------------------------------------------------------
@@ -395,7 +604,6 @@
                 url: api_url("model"),
                 data: JSON.stringify(model),
                 success: function () {
-                    console.log("Model created.");
                     ebi_pages_show_main_overview();
                 },
                 dataType: "json"
@@ -406,7 +614,6 @@
                 url: api_url("model/" + model.id),
                 data: JSON.stringify(model),
                 success: function () {
-                    console.log("Model updated.");
                     ebi_pages_show_main_overview();
                 },
                 dataType: "json"

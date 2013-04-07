@@ -61,25 +61,26 @@ encode_decode_test() ->
         ],
         compartments = [
             #ebi_compartment{
-                name = "\\Omega_3",
+                name = "\\Omega_1",
                 description = "Solution",
                 definition = #ebi_cdef_solution{
-                    nernst_thickness = "d2",
-                    concentrations = [
-                        #ebi_comp_species{species = "S", concentration = "S0", diffusion = undefined}
-                    ]
+                    species = [#ebi_comp_species{species = "S", concentration = "S0"}],
+                    diffusion = "0",
+                    nernst_thickness = "d1"
                 }
             },
             #ebi_compartment{
                 name = "\\Omega_2",
                 description = "Enzyme",
                 definition = #ebi_cdef_diffusive{
+                    species = [#ebi_comp_species{species = "E", diffusion = "0", concentration = "E0"}],
+                    diffusion = "De",
                     reactions = ["R2"],
-                    diffusion_coefs = []
+                    thickness = "d2"
                 }
             },
             #ebi_compartment{
-                name = "\\Omega_1",
+                name = "\\Omega_3",
                 description = "Solid electrode",
                 definition = #ebi_cdef_solid_electrode{
                     el_reaction = "R1"

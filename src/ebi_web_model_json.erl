@@ -94,16 +94,19 @@ encode(#ebi_comp_species{species = S, diffusion = D, concentration = C}) ->
         {concentration, encode_string(C)}
     ]};
 
-encode(#ebi_cdef_solution{nernst_thickness = NT, concentrations = C}) ->
+encode(#ebi_cdef_solution{species = S, diffusion = D, nernst_thickness = NT}) ->
     {[
-        {nernst_thickness, encode_string(NT)},
-        {concentrations, encode(C)}
+        {species, encode(S)},
+        {diffusion, encode_string(D)},
+        {nernst_thickness, encode_string(NT)}
     ]};
 
-encode(#ebi_cdef_diffusive{diffusion_coefs = DC, reactions = R}) ->
+encode(#ebi_cdef_diffusive{species = S, diffusion = D, reactions = R, thickness = T}) ->
     {[
-        {diffusion_coefs, encode(DC)},
-        {reactions, encode_string_list(R)}
+        {species, encode(S)},
+        {diffusion, encode_string(D)},
+        {reactions, encode_string_list(R)},
+        {thickness, encode_string(T)}
     ]};
 
 encode(#ebi_cdef_insulating{}) ->
@@ -210,14 +213,17 @@ decode(ebi_comp_species, {PL}) ->
 
 decode(ebi_cdef_solution, {PL}) ->
     #ebi_cdef_solution{
-        nernst_thickness = decode_string(proplists:get_value(<<"nernst_thickness">>, PL, null)),
-        concentrations = decode(ebi_comp_species, proplists:get_value(<<"concentrations">>, PL, null))
+        species          = decode(ebi_comp_species, proplists:get_value(<<"species">>, PL, null)),
+        diffusion        = decode_string(proplists:get_value(<<"diffusion">>, PL, null)),
+        nernst_thickness = decode_string(proplists:get_value(<<"nernst_thickness">>, PL, null))
     };
 
 decode(ebi_cdef_diffusive, {PL}) ->
     #ebi_cdef_diffusive{
-        diffusion_coefs = decode(ebi_comp_species, proplists:get_value(<<"diffusion_coefs">>, PL, null)),
-        reactions = decode_string_list(proplists:get_value(<<"reactions">>, PL, null))
+        species   = decode(ebi_comp_species, proplists:get_value(<<"species">>, PL, null)),
+        diffusion = decode_string(proplists:get_value(<<"diffusion">>, PL, null)),
+        reactions = decode_string_list(proplists:get_value(<<"reactions">>, PL, null)),
+        thickness = decode_string(proplists:get_value(<<"thickness">>, PL, null))
     };
 
 decode(ebi_cdef_insulating, {_PL}) ->
