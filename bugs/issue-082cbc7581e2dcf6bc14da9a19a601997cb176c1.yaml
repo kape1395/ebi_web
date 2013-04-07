@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: "JSON: Move type attr to definition."
+desc: ""
+type: :task
+component: ebi_web
+release: 
+reporter: Karolis Petrauskas <k.petrauskas@gmail.com>
+status: :unstarted
+disposition: 
+creation_time: 2013-04-07 22:56:19.657881 Z
+references: []
+
+id: 082cbc7581e2dcf6bc14da9a19a601997cb176c1
+log_events: 
+- - 2013-04-07 22:56:20.377788 Z
+  - Karolis Petrauskas <k.petrauskas@gmail.com>
+  - created
+  - ""

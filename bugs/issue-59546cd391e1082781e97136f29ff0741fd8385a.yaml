@@ -5,8 +5,8 @@ type: :task
 component: ebi_web
 release: 
 reporter: Karolis Petrauskas <k.petrauskas@gmail.com>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :reorg
 creation_time: 2013-01-08 21:35:58.530980 Z
 references: []
 
@@ -15,4 +15,8 @@ log_events:
 - - 2013-01-08 21:35:59.378856 Z
   - Karolis Petrauskas <k.petrauskas@gmail.com>
   - created
+  - ""
+- - 2013-04-07 22:55:50.441113 Z
+  - Karolis Petrauskas <k.petrauskas@gmail.com>
+  - closed with disposition reorg
   - ""

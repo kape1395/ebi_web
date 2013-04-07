@@ -57,6 +57,36 @@ div.moded-reaction-simple div.rate svg {
     display: block;
 }
 
+div.moded-reaction-fast {
+    width: 520px;
+}
+div.moded-reaction-fast input.reagent {
+    width: 160px;
+    float:left;
+    margin-top: 20px;
+}
+div.moded-reaction-fast input.product {
+    width: 160px;
+    float:right;
+    margin-top: 20px;
+}
+div.moded-reaction-fast div.rate {
+    width: 160px;
+    margin: 0px auto;
+}
+div.moded-reaction-fast div.rate > span {
+    margin: 0px auto;
+    font-size: 20pt;
+    text-align: center;
+    display: block;
+}
+div.moded-reaction-fast div.rate svg {
+    width: 95%;
+    height: 10px;
+    margin: 5px auto;
+    display: block;
+}
+
 div.moded-reaction-michaelis {
     width: 520px;
 }

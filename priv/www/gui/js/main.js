@@ -147,21 +147,7 @@ function ebi_model_render_reactions(model) {
     var str = "";
     for (var i = 0; i < reactions.length; i++) {
         var r = reactions[i];
-        if (r.type == "ebi_rdef_mm") {
-            str += "<tr>";
-            str += "<td><math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
-            str += "    <mrow>";
-            str += "        <mi>E</mi><mo>+</mo><mi>" + r.definition.substrate + "</mi>";
-            str += "        <mo>&harr;</mo>";
-            str += "        <mi mathvariant='italic'>E" + r.definition.substrate + "</mi>";
-            str += "        <mo>&rarr;</mo>";
-            str += "        <mi>E</mi><mo>+</mo><mi mathvariant='italic'>" + r.definition.product + "</mi>";
-            str += "    </mrow>";
-            str += "</math>,<td>";
-            str += "<td>" + ebi_mml_reaction_rate(r) + ",</td>";
-            str += "<td><span class='pull-right'>(" + (i + 1) + ")</span></td>";
-            str += "</tr>";
-        } else if (r.type == "ebi_rdef_simple") {
+        if (r.type == "ebi_rdef_simple") {
             str += "<tr>";
             str += "<td><math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
             str += "    <mrow>";
@@ -178,6 +164,42 @@ function ebi_model_render_reactions(model) {
                 if (rr.number != 1) str += "<mn>" + rr.number + "</mn>";
                 str += "<mi mathvariant='italic'>" + rr.species + "</mi>";
             }
+            str += "    </mrow>";
+            str += "</math>,<td>";
+            str += "<td>" + ebi_mml_reaction_rate(r) + ",</td>";
+            str += "<td><span class='pull-right'>(" + (i + 1) + ")</span></td>";
+            str += "</tr>";
+        } else if (r.type == "ebi_rdef_fast") {
+            str += "<tr>";
+            str += "<td><math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
+            str += "    <mrow>";
+            for (var j = 0; j < r.definition.reagents.length; j++) {
+                var rr = r.definition.reagents[j];
+                if (j > 0) str += "<mo>+</mo>";
+                if (rr.number != 1) str += "<mn>" + rr.number + "</mn>";
+                str += "<mi mathvariant='italic'>" + rr.species + "</mi>";
+            }
+            str += "<mo>&rarr;</mo>";
+            for (var j = 0; j < r.definition.products.length; j++) {
+                var rr = r.definition.products[j];
+                if (j > 0) str += "<mo>+</mo>";
+                if (rr.number != 1) str += "<mn>" + rr.number + "</mn>";
+                str += "<mi mathvariant='italic'>" + rr.species + "</mi>";
+            }
+            str += "    </mrow>";
+            str += "</math>,<td>";
+            str += "<td>" + ebi_mml_reaction_rate(r) + ",</td>";
+            str += "<td><span class='pull-right'>(" + (i + 1) + ")</span></td>";
+            str += "</tr>";
+        } else if (r.type == "ebi_rdef_mm") {
+            str += "<tr>";
+            str += "<td><math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
+            str += "    <mrow>";
+            str += "        <mi>E</mi><mo>+</mo><mi>" + r.definition.substrate + "</mi>";
+            str += "        <mo>&harr;</mo>";
+            str += "        <mi mathvariant='italic'>E" + r.definition.substrate + "</mi>";
+            str += "        <mo>&rarr;</mo>";
+            str += "        <mi>E</mi><mo>+</mo><mi mathvariant='italic'>" + r.definition.product + "</mi>";
             str += "    </mrow>";
             str += "</math>,<td>";
             str += "<td>" + ebi_mml_reaction_rate(r) + ",</td>";
@@ -205,18 +227,7 @@ function ebi_model_render_species(model) {
 
 function ebi_mml_reaction_rate(r) {
     var str = "";
-    if (r.type == "ebi_rdef_mm") {
-        str += "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
-        str += "    <mrow>";
-        str += "        <mrow><mo>" + r.name + "</mo></mrow>";
-        str += "        <mo>=</mo>";
-        str += "        <mfrac>";
-        str += "            <mrow><mi mathvariant='italic'>" + r.definition.vmax + "</mi><mi mathvariant='italic'>" + r.definition.substrate + "</mi></mrow>";
-        str += "            <mrow><mi mathvariant='italic'>" + r.definition.km + "</mi><mo>+</mo><mi mathvariant='italic'>" + r.definition.substrate + "</mi></mrow>";
-        str += "        </mfrac>";
-        str += "    </mrow>";
-        str += "</math>";
-    } else if (r.type == "ebi_rdef_simple") {
+    if (r.type == "ebi_rdef_simple") {
         str += "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
         str += "    <mrow>";
         str += "        <mrow><mo>" + r.name + "</mo></mrow>";
@@ -227,6 +238,29 @@ function ebi_mml_reaction_rate(r) {
             str += "<mi mathvariant='italic'>" + r.definition.reagents[j].species + "</mi>";
         }
         str += "        </mrow>";
+        str += "    </mrow>";
+        str += "</math>";
+    } else if (r.type == "ebi_rdef_fast") {
+        str += "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
+        str += "    <mrow>";
+        str += "        <mrow><mo>" + r.name + "</mo></mrow>";
+        str += "        <mo>=</mo>";
+        str += "        <mrow>";
+        for (var j = 0; j < r.definition.reagents.length; j++) {
+            str += "<mi mathvariant='italic'>" + r.definition.reagents[j].species + "</mi>";
+        }
+        str += "        </mrow>";
+        str += "    </mrow>";
+        str += "</math>";
+    } else if (r.type == "ebi_rdef_mm") {
+        str += "<math xmlns=\"http://www.w3.org/1998/Math/MathML\">";
+        str += "    <mrow>";
+        str += "        <mrow><mo>" + r.name + "</mo></mrow>";
+        str += "        <mo>=</mo>";
+        str += "        <mfrac>";
+        str += "            <mrow><mi mathvariant='italic'>" + r.definition.vmax + "</mi><mi mathvariant='italic'>" + r.definition.substrate + "</mi></mrow>";
+        str += "            <mrow><mi mathvariant='italic'>" + r.definition.km + "</mi><mo>+</mo><mi mathvariant='italic'>" + r.definition.substrate + "</mi></mrow>";
+        str += "        </mfrac>";
         str += "    </mrow>";
         str += "</math>";
     } else {

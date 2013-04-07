@@ -60,14 +60,6 @@ encode(#ebi_reaction{name = Name, description = Description, definition = Defini
         {definition, encode(Definition)}
     ]};
 
-encode(#ebi_rdef_mm{substrate = S, product = P, vmax = VMax, km = KM}) ->
-    {[
-        {substrate, encode_string(S)},
-        {product, encode_string(P)},
-        {vmax, encode_string(VMax)},
-        {km, encode_string(KM)}
-    ]};
-
 encode(#ebi_rdef_simple{reagents = R, products = P, rateconst = C}) ->
     F = fun ({Name, Num}) -> {[
         {species, encode_string(Name)},
@@ -77,6 +69,24 @@ encode(#ebi_rdef_simple{reagents = R, products = P, rateconst = C}) ->
         {reagents, [ F(X) || X <- R]},
         {products, [ F(X) || X <- P]},
         {rateconst, encode_string(C)}
+    ]};
+
+encode(#ebi_rdef_fast{reagents = R, products = P}) ->
+    F = fun ({Name, Num}) -> {[
+        {species, encode_string(Name)},
+        {number, encode_number(Num)}
+    ]} end,
+    {[
+        {reagents, [ F(X) || X <- R]},
+        {products, [ F(X) || X <- P]}
+    ]};
+
+encode(#ebi_rdef_mm{substrate = S, product = P, vmax = VMax, km = KM}) ->
+    {[
+        {substrate, encode_string(S)},
+        {product, encode_string(P)},
+        {vmax, encode_string(VMax)},
+        {km, encode_string(KM)}
     ]};
 
 encode(#ebi_compartment{name = Name, description = Desc, definition = Def}) ->
@@ -94,17 +104,15 @@ encode(#ebi_comp_species{species = S, diffusion = D, concentration = C}) ->
         {concentration, encode_string(C)}
     ]};
 
-encode(#ebi_cdef_solution{species = S, diffusion = D, nernst_thickness = NT}) ->
+encode(#ebi_cdef_solution{species = S, nernst_thickness = NT}) ->
     {[
         {species, encode(S)},
-        {diffusion, encode_string(D)},
         {nernst_thickness, encode_string(NT)}
     ]};
 
-encode(#ebi_cdef_diffusive{species = S, diffusion = D, reactions = R, thickness = T}) ->
+encode(#ebi_cdef_diffusive{species = S, reactions = R, thickness = T}) ->
     {[
         {species, encode(S)},
-        {diffusion, encode_string(D)},
         {reactions, encode_string_list(R)},
         {thickness, encode_string(T)}
     ]};
@@ -173,19 +181,25 @@ decode(ebi_reaction, {PL}) ->
         )
     };
 
+decode(ebi_rdef_simple, {PL}) ->
+    #ebi_rdef_simple{
+        reagents = decode(ebi_rdef_simple__species, proplists:get_value(<<"reagents">>, PL, null)),
+        products = decode(ebi_rdef_simple__species, proplists:get_value(<<"products">>, PL, null)),
+        rateconst = decode_string(proplists:get_value(<<"rateconst">>, PL, null))
+    };
+
+decode(ebi_rdef_fast, {PL}) ->
+    #ebi_rdef_fast{
+        reagents = decode(ebi_rdef_simple__species, proplists:get_value(<<"reagents">>, PL, null)),
+        products = decode(ebi_rdef_simple__species, proplists:get_value(<<"products">>, PL, null))
+    };
+
 decode(ebi_rdef_mm, {PL}) ->
     #ebi_rdef_mm{
         substrate = decode_string(proplists:get_value(<<"substrate">>, PL, null)),
         product   = decode_string(proplists:get_value(<<"product">>,   PL, null)),
         vmax      = decode_string(proplists:get_value(<<"vmax">>,      PL, null)),
         km        = decode_string(proplists:get_value(<<"km">>,        PL, null))
-    };
-
-decode(ebi_rdef_simple, {PL}) ->
-    #ebi_rdef_simple{
-        reagents = decode(ebi_rdef_simple__species, proplists:get_value(<<"reagents">>, PL, null)),
-        products = decode(ebi_rdef_simple__species, proplists:get_value(<<"products">>, PL, null)),
-        rateconst = decode_string(proplists:get_value(<<"rateconst">>, PL, null))
     };
 
 decode(ebi_rdef_simple__species, {S}) ->
@@ -214,14 +228,12 @@ decode(ebi_comp_species, {PL}) ->
 decode(ebi_cdef_solution, {PL}) ->
     #ebi_cdef_solution{
         species          = decode(ebi_comp_species, proplists:get_value(<<"species">>, PL, null)),
-        diffusion        = decode_string(proplists:get_value(<<"diffusion">>, PL, null)),
         nernst_thickness = decode_string(proplists:get_value(<<"nernst_thickness">>, PL, null))
     };
 
 decode(ebi_cdef_diffusive, {PL}) ->
     #ebi_cdef_diffusive{
         species   = decode(ebi_comp_species, proplists:get_value(<<"species">>, PL, null)),
-        diffusion = decode_string(proplists:get_value(<<"diffusion">>, PL, null)),
         reactions = decode_string_list(proplists:get_value(<<"reactions">>, PL, null)),
         thickness = decode_string(proplists:get_value(<<"thickness">>, PL, null))
     };

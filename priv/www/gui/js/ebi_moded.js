@@ -138,6 +138,10 @@
         render_domain($this);
     }
 
+    // -------------------------------------------------------------------------
+    //  Species
+    // -------------------------------------------------------------------------
+
     function render_species($this) {
         var model = get_model($this);
         var str = "";
@@ -153,6 +157,10 @@
         $this.find(".moded-species-table tbody").html(str);
     }
 
+    // -------------------------------------------------------------------------
+    //  Reactions
+    // -------------------------------------------------------------------------
+
     function reactions_init($this) {
         $this.on("change", ".moded-rea-name", function () {
             get_model($this).definition.reactions[$(this).closest("tr").data("idx")].name = $(this).val();
@@ -160,6 +168,26 @@
         });
         $this.on("change", ".moded-rea-desc", function () {
             get_model($this).definition.reactions[$(this).closest("tr").data("idx")].description = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-r", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.reagents = spc_list_parse($(this).val());
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-p", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.products = spc_list_parse($(this).val())
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-sm-k", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.rateconst = $(this).val();
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-fs-r", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.reagents = spc_list_parse($(this).val());
+            render_reactions($this);
+        });
+        $this.on("change", ".moded-rea-fs-p", function () {
+            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.products = spc_list_parse($(this).val())
             render_reactions($this);
         });
         $this.on("change", ".moded-rea-mm-s", function () {
@@ -178,18 +206,6 @@
             get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.km = $(this).val();
             render_reactions($this);
         });
-        $this.on("change", ".moded-rea-sm-r", function () {
-            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.reagents = spc_list_parse($(this).val());
-            render_reactions($this);
-        });
-        $this.on("change", ".moded-rea-sm-p", function () {
-            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.products = spc_list_parse($(this).val())
-            render_reactions($this);
-        });
-        $this.on("change", ".moded-rea-sm-k", function () {
-            get_model($this).definition.reactions[$(this).closest("tr").data("idx")].definition.rateconst = $(this).val();
-            render_reactions($this);
-        });
 
         $this.on("click", "a[href='#moded-reaction-add-sm']", function () {
             get_model($this).definition.reactions.push({
@@ -200,6 +216,18 @@
                     reagents: [],
                     products: [],
                     rateconst: ""
+                }
+            });
+            render_reactions($this);
+        });
+        $this.on("click", "a[href='#moded-reaction-add-fs']", function () {
+            get_model($this).definition.reactions.push({
+                name: "",
+                description: "",
+                type: "ebi_rdef_fast",
+                definition: {
+                    reagents: [],
+                    products: []
                 }
             });
             render_reactions($this);
@@ -253,6 +281,26 @@
                 str += "  </div>";
                 str += "</td>";
                 str += "<td>" + ebi_mml_reaction_rate(r) + "</td>";
+            } else if (r.type == "ebi_rdef_fast") {
+                str += "<td>";
+                str += "  <div class='moded-reaction-fast'>";
+                str += "    <input type='text' placeholder='Reagents' title='Example: 2 S1 + S2' class='reagent moded-rea-fs-r' value='" + spc_list_format(r.definition.reagents) + "'/>";
+                str += "    <input type='text' placeholder='Products' title='Example: P'         class='product moded-rea-fs-p' value='" + spc_list_format(r.definition.products) + "'/>";
+                str += "    <div class='rate'>";
+                str += "      <span>&infin;</span>";
+                str += "      <svg xmlns='http://www.w3.org/2000/svg' version='1.1'>";
+                str += "        <defs>";
+                str += "          <marker id='Triangle' viewBox='0 0 10 10' refX='9' refY='5' markerUnits='strokeWidth' markerWidth='10' markerHeight='5' orient='auto'>";
+                str += "            <path d='M 0 0 L 10 5 L 0 10 L 7 5 z' style='fill:#999;stroke:#999;'/>";
+                str += "          </marker>";
+                str += "        </defs>";
+                str += "        <line x1='5' y1='5' x2='95%' y2='5' style='stroke:#999;stroke-width:3' marker-end='url(#Triangle)'/>";
+                str += "      </svg>";
+                str += "    </div>";
+                str += "    <div class='clearfix'></div>";
+                str += "  </div>";
+                str += "</td>";
+                str += "<td>" + ebi_mml_reaction_rate(r) + "</td>";
             } else if (r.type == "ebi_rdef_mm") {
                 str += "<td>";
                 str += "<div class='moded-reaction-michaelis'>";
@@ -282,6 +330,7 @@
         str += "    <a href='#moded-reaction-add' class='btn btn-primary dropdown-toggle' data-toggle='dropdown'>Add new reaction <b class='caret'></b></a>";
         str += "    <ul class='dropdown-menu' role='menu' aria-labelledby='dLabel'>";
         str += "      <li><a tabindex='-1' href='#moded-reaction-add-sm'>Simple</a></li>";
+        str += "      <li><a tabindex='-1' href='#moded-reaction-add-fs'>Fast</a></li>";
         str += "      <li><a tabindex='-1' href='#moded-reaction-add-mm'>Michaelis-Menten</a></li>";
         str += "    </ul>";
         str += "  </div>";
