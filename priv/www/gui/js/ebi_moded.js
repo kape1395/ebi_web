@@ -1,4 +1,10 @@
 (function( $ ){
+    var compTypes = {
+        "ebi_cdef_solution":        {desc: "Investigated solution", haveThns: true},
+        "ebi_cdef_diffusive":       {desc: "Diffusive medium",      haveThns: true},
+        "ebi_cdef_solid_electrode": {desc: "Solid electrode",       haveThns: false},
+        "ebi_cdef_insulating":      {desc: "Insulating film",       haveThns: false}
+    };
 
     // -------------------------------------------------------------------------
     //  Actions
@@ -133,8 +139,28 @@
             $this.on("click", "a[href='#moded-comp-add-diffusive']",       function () { AddCompFun("ebi_cdef_diffusive"); });
             $this.on("click", "a[href='#moded-comp-add-solid_electrode']", function () { AddCompFun("ebi_cdef_solid_electrode"); });
             $this.on("click", "a[href='#moded-comp-add-insulating']",      function () { AddCompFun("ebi_cdef_insulating"); });
-            $this.on("click", "a[href='#moded-comp-rem']", function () {
+            $this.on("click", "a[href='#moded-comp-remove']", function () {
                 get_model($this).definition.compartments.splice($(this).closest("tr").data("idx"), 1);
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-moveup']", function () {
+                var idx = $(this).closest("tr").data("idx");
+                var cmps = get_model($this).definition.compartments;
+                if (idx > 0) {
+                    var tmp = cmps[idx - 1];
+                    cmps[idx - 1] = cmps[idx];
+                    cmps[idx] = tmp;
+                }
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-movedn']", function () {
+                var idx = $(this).closest("tr").data("idx");
+                var cmps = get_model($this).definition.compartments;
+                if (idx < cmps.length - 1) {
+                    var tmp = cmps[idx + 1];
+                    cmps[idx + 1] = cmps[idx];
+                    cmps[idx] = tmp;
+                }
                 render_domain($this);
             });
 
@@ -215,6 +241,40 @@
                 var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
                 var spc  = $(this).data("spc");
                 unassign_spc_in_conds(cdef, spc);
+                render_domain($this);
+            });
+
+            $this.on("click", "a[href='#moded-comp-reac-add']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var reac = $(this).data("reac");
+                var crs = cdef.reactions;
+                if (crs == null || crs == undefined) {
+                    cdef.reactions = crs = [];
+                }
+                crs.push(reac);
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-reac-rem']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var reac = $(this).data("reac");
+                var crs = cdef.reactions;
+                if (crs == null || crs == undefined) {
+                    cdef.reactions = crs = [];
+                }
+                for (var i = 0; i < crs.length; i++) {
+                    if (crs[i] == reac) {
+                        crs.splice(i, 1);
+                    }
+                }
+                render_domain($this);
+            });
+            $this.on("click", "a[href='#moded-comp-solel-reac']", function () {
+                var mdef = get_model($this).definition;
+                var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+                var reac = $(this).data("reac");
+                cdef.el_reaction = reac;
                 render_domain($this);
             });
 
@@ -308,9 +368,9 @@
         for (var i = 0; i < model.definition.species.length; i++) {
             var s = model.definition.species[i];
             str += "<tr data-idx='" + i + "'>";
-            str += "<td><input type='text' placeholder='Species name' value='" + s.name + "' class='moded-spc-name'/></td>";
-            str += "<td><input type='text' placeholder='Description' value='" + s.description + "' class='moded-spc-desc input-xlarge'/></td>";
-            str += "<td><a href='#moded-species-rem' class='btn pull-right'>Remove</a></td>";
+            str += "<td><input type='text' placeholder='Species name' value='" + s.name + "' class='moded-spc-name span1'/></td>";
+            str += "<td><input type='text' placeholder='Description' value='" + s.description + "' class='moded-spc-desc input-xlarge span6'/></td>";
+            str += "<td><a href='#moded-species-rem' class='btn pull-right moded-species-rem'>&times;</a></td>";
             str += "</tr>";
         }
         str += "<tr><td colspan='3'><a href='#moded-species-add' class='btn btn-primary pull-right'>Add new species</a></td></tr>";
@@ -384,32 +444,60 @@
         MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     }
 
+
+
     function render_domain($this) {
         var model = get_model($this);
         var str = "";
         for (var i = 0; i < model.definition.compartments.length; i++) {
             var c = model.definition.compartments[i];
-            str += "<tr data-idx='" + i + "' class='moded_comp'>";
-            str += "<td>";
-            str += "    " + c.type + "<br>";
-            str += "    <input type='text' placeholder='Compartment name' value='" + c.name + "' class='moded-comp-name input-medium'/><br>";
-            str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium hidden-bydef'>" + c.description + "</textarea>";
-            str += "</td>";
-            str += "<td>";
+            str += "<tr data-idx='" + i + "' class='moded_comp'><td>";
+
+            //
+            // Compartment header column
+            //
+            str += "<div class='moded-comp-hdr moded-comp-block'>";
+            str += "<table>";
+            str += "<caption><span class='dropdown'>";
+            str += "<a href='#' class='dropdown-toggle' data-toggle='dropdown'>" + compTypes[c.type].desc + " <b class='caret'></b></a>";
+            str += "<ul class='dropdown-menu'>";
+            str += "<li><a href='#moded-comp-remove'>Remove</a></li>";
+            str += "<li><a href='#moded-comp-moveup'>Move up</a></li>";
+            str += "<li><a href='#moded-comp-movedn'>Move down</a></li>";
+            str += "</ul>";
+            str += "</span></caption>";
+            str += "<tbody>";
+            str += "<tr><td>";
+            str += "    <input type='text' placeholder='Compartment name' value='" + n(c.name) + "' class='moded-comp-name input-medium'/><br>";
+            switch (c.type) {
+            case 'ebi_cdef_solution':
+                str += "<input type='text' placeholder='Nernst l. thickness' value='" + n(c.definition.nernst_thickness) + "' class='moded-comp-thns input-medium'/><br>";
+                break;
+            case 'ebi_cdef_diffusive':
+                str += "<input type='text' placeholder='Layer thickness' value='" + n(c.definition.thickness) + "' class='moded-comp-thns input-medium'/><br>";
+                break;
+            }
+            str += "    <textarea placeholder='Description' class='moded-comp-desc input-medium hidden-bydef'>" + n(c.description) + "</textarea>";
+            str += "</td></tr>";
+            str += "</tbody></tbody></table></div>";
+
+            //
+            //  Compartment parameters
+            //
             if (c.type == "ebi_cdef_solution") {
                 str += render_compartment_species(model.definition.species, c);
             } else if (c.type == "ebi_cdef_diffusive") {
-                str += render_compartment_species_v2(model.definition.species, c);
+                str += render_compartment_species(model.definition.species, c);
+                str += render_compartment_reactions(model.definition.reactions, c);
             } else if (c.type == "ebi_cdef_solid_electrode") {
-                str += "solid_electrode...";
+                str += render_compartment_solel_reaction(model.definition.reactions, c);
             } else if (c.type == "ebi_cdef_insulating") {
-                str += "insulating...";
+                //str += "insulating...";
             } else {
-                str += "Unsupported";
+                str += "Unsupported compartment type";
             }
-            str += "</td>";
-            str += "<td><a href='#moded-comp-rem' class='btn pull-right'>Remove</a></td>";
-            str += "</tr>";
+            str += "<span class='clearfix'></span></div>";
+            str += "</td></tr>";
         }
         str += "<tr><td colspan='5'>";
         str += "  <div class='dropdown pull-right'>";
@@ -426,6 +514,10 @@
         $this.find(".moded-domain-table tbody .hidden-bydef").hidden_bydef();
     }
 
+    /**
+     * Alternative to render_compartment_species().
+     * Not very convenient way...
+     * TODO: Remove this function after presentation.
     function render_compartment_species(species, compartment) {
         var spcs = compartment.definition.species;
         var str = "";
@@ -463,13 +555,14 @@
         str += "</tbody></table></div>";
         return str;
     }
+    */
 
-    function render_compartment_species_v2(species, compartment) {
+    function render_compartment_species(species, compartment) {
         var cnds = compartment.definition.conditions;
         var str = "";
         var selected;
         var other, snames;
-        str += "<div class='moded-comp-cond'>";
+
         snames = [];
         for (var i = 0; i < species.length; i++) {
             snames.push(species[i].name);
@@ -478,15 +571,6 @@
             cnds = [];
         }
 
-        function separator(index, length) {
-            var s = "";
-            if (index > 0 && index == length - 1) {
-                s += ", ";  // " and ";
-            } else if (index > 0) {
-                s += ", ";
-            }
-            return s;
-        }
         function species_dropdown(spcName, cndIndex) {
             var s = "";
             s += "<span class='dropdown'>";
@@ -504,7 +588,7 @@
                 }
             }
             s += "<li><a data-spc='" + spcName + "' href='#moded-comp-diff-diff'>" + spcName + " is affected by diffusion</a></li>";
-            if (cndIndex == undefined || cnds[cndIndex].type != "imob") {
+            if ((cndIndex == undefined || cnds[cndIndex].type != "imob") && compartment.type == 'ebi_cdef_diffusive') {
                 s += "<li><a data-spc='" + spcName + "' href='#moded-comp-diff-imob'>" + spcName + " is immobilized</a></li>";
             }
             if (cndIndex != undefined) {
@@ -515,7 +599,7 @@
             return s;
         }
 
-        str += "<div class='moded-comp-diff'>";
+        str += "<div class='moded-comp-diff moded-comp-block'>";
         str += "<table><caption>Species</caption>";
         str += "<tbody>";
         other = snames.slice(0);
@@ -556,8 +640,63 @@
             str += "</td><td> - not presented here</td></tr>";
         }
         str += "</tbody></tbody></table></div>";
+        return str;
+    }
 
-        str += "<span class='clearfix'></span></div>";
+    function render_compartment_reactions(reactions, compartment) {
+        var crs = compartment.definition.reactions;
+        if (crs == null || crs == undefined) {
+            crs = [];
+        }
+
+        var str = "";
+        str += "<div class='moded-comp-reac moded-comp-block'><table>";
+        str += "<caption><span class='dropdown'>";
+        str += "<a href='#' class='dropdown-toggle' data-toggle='dropdown'>Reactions <b class='caret'></b></a>";
+        str += "<ul class='dropdown-menu'>";
+        for (var i = 0; i < reactions.length; i++) {
+            var found = false;
+            for (var j = 0; j < crs.length; j++) {
+                if (crs[j] == reactions[i].name) {
+                    found = true;
+                    break;
+                }
+            }
+            str += "<li><a data-reac='" + reactions[i].name + "'";
+            if (found) {
+                str += "href='#moded-comp-reac-rem'><b>" + reactions[i].name + "</b> is not takinging place here</a></li>";
+            } else {
+                str += "href='#moded-comp-reac-add'><b>" + reactions[i].name + "</b> takes place here</a></li>";
+            }
+        }
+        str += "</ul>";
+        str += "</span></caption>";
+        str += "<tbody>";
+        str += "<tr><td>";
+        for (var i = 0; i < crs.length; i++) {
+            str += separator(i, crs.length);
+            str += crs[i];
+        }
+        str += "</td></tr>";
+        str += "</tbody></tbody></table></div><span class='clearfix'></span></div>";
+        return str;
+    }
+
+    function render_compartment_solel_reaction(reactions, compartment) {
+        var str = "";
+        str += "<div class='moded-comp-solel-reac moded-comp-block'><table>";
+        str += "<caption><span class='dropdown'>";
+        str += "<a href='#' class='dropdown-toggle' data-toggle='dropdown'>Electrochemical reaction <b class='caret'></b></a>";
+        str += "<ul class='dropdown-menu'>";
+        for (var i = 0; i < reactions.length; i++) {
+            str += "<li><a data-reac='" + reactions[i].name + "'";
+            str += "href='#moded-comp-solel-reac'><b>" + reactions[i].name + "</b> generated the output</a></li>";
+        }
+        str += "</ul>";
+        str += "</span></caption>";
+        str += "<tbody>";
+        str += "<tr><td>" + n(compartment.definition.el_reaction) + "</td></tr>";
+        str += "</tbody></tbody></table></div><span class='clearfix'></span></div>";
         return str;
     }
 
@@ -590,6 +729,23 @@
             }
         }
         return result;
+    }
+
+    function separator(index, length) {
+        var s = "";
+        if (index > 0 && index == length - 1) {
+            s += ", ";  // " and ";
+        } else if (index > 0) {
+            s += ", ";
+        }
+        return s;
+    }
+
+    function n(str) {
+        if (str == undefined || str == null) {
+            return "";
+        }
+        return str;
     }
 
     // -------------------------------------------------------------------------

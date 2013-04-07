@@ -1,6 +1,31 @@
+.moded-current-step {
+    font-weight: bold;
+}
 
+.moded-note {
+    color: #bbb;
+}
+
+
+
+/*
+ *  Species.
+ */
+.moded-species-table {
+    margin: 0px auto;
+}
+.moded-species-rem {
+    margin-top: -9px;
+}
+
+
+
+/*
+ *  Reactions
+ */
 table.moded-reactions-table {
     vertical-align: middle;
+    border-width: 3px;
 }
 
 div.moded-reaction-simple {
@@ -52,61 +77,46 @@ div.moded-reaction-michaelis input {
 
 
 
-.moded-current-step {
-    font-weight: bold;
-}
-
-.moded-note {
-    color: #bbb;
-}
-
-
-.moded-comp-species {
+/*
+ *  Domain / compartments
+ */
+.moded-comp-block {
     border: 1px solid #e3e3e3;
     border-radius: 4px;
     box-shadow: insert 0 1px 1px;
+    margin-right: 5px;
 }
-.moded-comp-species table {
+.moded-comp-block > table {
     width: 100%;
 }
-.moded-comp-species table caption {
+.moded-comp-block > table > caption  {
     text-align: left;
     font-weight: bold;
     background-color: #f5f5f5;
+    padding-left: 5px;
 }
 
 
-
-
-
-.moded-comp-cond {
-    width: 600px;
-}
-.moded-comp-cond table {
-    width: 100%;
-}
-.moded-comp-cond table caption  {
-    text-align: left;
-    font-weight: bold;
-    background-color: #f5f5f5;
-}
-.moded-comp-cond input{
-    width: 50px;
+.moded-comp-hdr {
+    /*width: 180px;*/
+    float: left;
 }
 
 .moded-comp-diff {
-    border: 1px solid #e3e3e3;
-    border-radius: 4px;
-    box-shadow: insert 0 1px 1px;
-    width: 500px;
+    width: 350px;
     float: left;
 }
-/*
-.moded-comp-conc {
-    border: 1px solid #e3e3e3;
-    border-radius: 4px;
-    box-shadow: insert 0 1px 1px;
-    width: 297px;
-    float: right;
+.moded-comp-diff input{
+    width: 50px;
 }
-*/
+
+.moded-comp-reac {
+    width: 120px;
+    float: left;
+}
+
+.moded-comp-solel-reac {
+    float: left;
+    width: 220px;
+}
+
