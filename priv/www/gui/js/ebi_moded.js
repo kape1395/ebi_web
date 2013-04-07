@@ -10,7 +10,7 @@
     //  Actions
     // -------------------------------------------------------------------------
 
-    function do_init() {
+    function do_init(returnFun) {
         var $this = $(this);
         $this.load("ebi_moded.html", function () {
             $this.on("click", "a[href='#moded-general']",     function () {show_step($this, "moded-general");});
@@ -19,7 +19,7 @@
             $this.on("click", "a[href='#moded-domain']",      function () {show_step($this, "moded-domain");});
             $this.on("click", "a[href='#moded-parameters']",  function () {show_step($this, "moded-parameters");});
             $this.on("click", "a[href='#moded-done']",        function () {show_step($this, "moded-done");});
-            $this.on("click", "a[href='#moded-cancel']",      ebi_pages_show_main_overview);    // TODO
+            $this.on("click", "a[href='#moded-cancel']",      returnFun);
             $this.on("click", "a[href='#moded-save']",        function () {save($this);});
 
             //
@@ -368,7 +368,7 @@
         for (var i = 0; i < model.definition.species.length; i++) {
             var s = model.definition.species[i];
             str += "<tr data-idx='" + i + "'>";
-            str += "<td><input type='text' placeholder='Species name' value='" + s.name + "' class='moded-spc-name span1'/></td>";
+            str += "<td><input type='text' placeholder='Species name' value='" + s.name + "' class='moded-spc-name span2'/></td>";
             str += "<td><input type='text' placeholder='Description' value='" + s.description + "' class='moded-spc-desc input-xlarge span6'/></td>";
             str += "<td><a href='#moded-species-rem' class='btn pull-right moded-species-rem'>&times;</a></td>";
             str += "</tr>";
@@ -514,49 +514,6 @@
         $this.find(".moded-domain-table tbody .hidden-bydef").hidden_bydef();
     }
 
-    /**
-     * Alternative to render_compartment_species().
-     * Not very convenient way...
-     * TODO: Remove this function after presentation.
-    function render_compartment_species(species, compartment) {
-        var spcs = compartment.definition.species;
-        var str = "";
-        str += "<div class='moded-comp-species'><table>";
-        if (spcs != null && spcs != undefined && spcs.length > 0) {
-            str += "<caption>Species</caption>";
-            str += "<thead><tr><th>Name</th><th>Diff. coef.</th><th>Initial conc.</th></tr></thhead>";
-            str += "<tbody>";
-            for (var i = 0; i < species.length; i++) {
-                var spc = null;
-                for (var j = 0; j < spcs.length; j++) {
-                    if (spcs[j].species == species[i].name) {
-                        spc = spcs[j];
-                        break;
-                    }
-                }
-                str += "<tr><td>" + species[i].name + "</td>";
-                if (spc != null) {
-                    str += "<td>" + spc.diffusion + "</td>";
-                    str += "<td>" + spc.concentration + "</td>";
-                } else {
-                    str += "<td>???</td>";
-                    str += "<td>???</td>";
-                }
-                str += "</tr>";
-            }
-            str += "</tbody>";
-        } else {
-            str += "<caption>Species (<a href='#moded-comp-species-expand'>expand</a>)</caption>";
-            str += "<tr><td>";
-            str += "<label>Diffusion coeficient</label><input type='text' class='moded-comp-diffusion'>";
-            str += "</td></tr>";
-            str += "</tbody>";
-        }
-        str += "</tbody></table></div>";
-        return str;
-    }
-    */
-
     function render_compartment_species(species, compartment) {
         var cnds = compartment.definition.conditions;
         var str = "";
@@ -690,7 +647,7 @@
         str += "<ul class='dropdown-menu'>";
         for (var i = 0; i < reactions.length; i++) {
             str += "<li><a data-reac='" + reactions[i].name + "'";
-            str += "href='#moded-comp-solel-reac'><b>" + reactions[i].name + "</b> generated the output</a></li>";
+            str += "href='#moded-comp-solel-reac'>Output is generated due to <b>" + reactions[i].name + "</b></a></li>";
         }
         str += "</ul>";
         str += "</span></caption>";
@@ -782,9 +739,9 @@
     // -------------------------------------------------------------------------
 
     var methods = {
-        init : function() {
+        init : function(returnFun) {
             return this.each(function(i){
-                do_init.call(this);
+                do_init.call(this, returnFun);
             });
          },
          create : function() {

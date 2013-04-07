@@ -1,7 +1,7 @@
 
 function ebi_init() {
     ebi_models_init();
-    $("#ebi_moded").ebi_moded();
+    $("#ebi_moded").ebi_moded("init", ebi_pages_show_main_overview);
     ebi_pages_show_main_overview();
 }
 
@@ -36,6 +36,9 @@ function ebi_pages_show_moded() {
 // =============================================================================
 
 function ebi_models_init() {
+    $("html").on("click", "a[href='#overview']", function () {
+        ebi_pages_show_main_overview();
+    });
     $("#main-tabs").on("click", "a[href='#model-list']", function () {
         ebi_model_list_load();
         ebi_model_list_show();
@@ -86,11 +89,13 @@ function ebi_model_list_render(models) {
     for (var i = 0; i < models.length; i++) {
         var m = models[i];
         rows += "<tr>";
+        /*
         if (m.object == null) {
             rows += "<td>&nbsp;</td>";
         } else {
             rows += "<td><a href='#object-view' data-objectref='" + m.object.ref + "'>" + m.object.desc + "</td>";
         }
+        */
         rows += "<td><a href='#model-view' data-modelid='" + m.id + "' data-modelref='" + m.ref + "'>" + m.name + " <span class='id-text'>(" + m.id + ")</span></a></td>";
         rows += "<td>" + m.description + "</td>";
         rows += "</tr>";
