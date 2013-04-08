@@ -150,3 +150,14 @@ div.moded-reaction-michaelis input {
     width: 220px;
 }
 
+
+/*
+ *  Species.
+ */
+.moded-conc-table {
+    margin: 0px auto;
+}
+.moded-conc-type {
+    margin-top: -9px;
+    margin-right: 10px;
+}

@@ -13,14 +13,15 @@
     function do_init(returnFun) {
         var $this = $(this);
         $this.load("ebi_moded.html", function () {
-            $this.on("click", "a[href='#moded-general']",     function () {show_step($this, "moded-general");});
-            $this.on("click", "a[href='#moded-species']",     function () {show_step($this, "moded-species");});
-            $this.on("click", "a[href='#moded-reactions']",   function () {show_step($this, "moded-reactions");});
-            $this.on("click", "a[href='#moded-domain']",      function () {show_step($this, "moded-domain");});
-            $this.on("click", "a[href='#moded-parameters']",  function () {show_step($this, "moded-parameters");});
-            $this.on("click", "a[href='#moded-done']",        function () {show_step($this, "moded-done");});
-            $this.on("click", "a[href='#moded-cancel']",      returnFun);
-            $this.on("click", "a[href='#moded-save']",        function () {save($this);});
+            $this.on("click", "a[href='#moded-general']",    function () {show_step($this, "moded-general");});
+            $this.on("click", "a[href='#moded-species']",    function () {show_step($this, "moded-species");});
+            $this.on("click", "a[href='#moded-reactions']",  function () {show_step($this, "moded-reactions");});
+            $this.on("click", "a[href='#moded-domain']",     function () {show_step($this, "moded-domain");});
+            $this.on("click", "a[href='#moded-conc']",       function () {show_step($this, "moded-conc");});
+            $this.on("click", "a[href='#moded-parameters']", function () {show_step($this, "moded-parameters");});
+            $this.on("click", "a[href='#moded-done']",       function () {show_step($this, "moded-done");});
+            $this.on("click", "a[href='#moded-cancel']",     returnFun);
+            $this.on("click", "a[href='#moded-save']",       function () {save($this);});
 
             //
             //  General
@@ -52,6 +53,7 @@
 
             reactions_init($this);
             domain_init($this);
+            conc_init($this);
             do_create.call($this);
         });
     }
@@ -119,6 +121,7 @@
         $this.find("div.tab-content > div." + name).show();
         $this.find("ul.breadcrumb a").removeClass("moded-current-step");
         $this.find("ul.breadcrumb a[href='#" + name + "']").addClass("moded-current-step");
+        render($this);
     }
 
     function show_general($this) {
@@ -136,6 +139,7 @@
         render_species($this);
         render_reactions($this);
         render_domain($this);
+        render_conc($this);
     }
 
     // -------------------------------------------------------------------------
@@ -782,6 +786,110 @@
         str += "<tr><td>" + n(compartment.definition.el_reaction) + "</td></tr>";
         str += "</tbody></tbody></table></div><span class='clearfix'></span></div>";
         return str;
+    }
+
+    // -------------------------------------------------------------------------
+    //  Concentrations
+    // -------------------------------------------------------------------------
+
+    function conc_init($this) {
+        AddConcFun = function (type) {
+            var mdef = get_model($this).definition;
+            var concs = mdef.concentrations;
+            if (concs == null || concs == undefined) {
+                concs = mdef.concentrations = [];
+            }
+            concs.push({
+                type: type,
+                species: "",
+                domain: "",
+                concentration: ""
+            });
+            render_conc($this);
+        }
+        $this.on("click", "a[href='#moded-conc-add-const']", function () { AddConcFun("const"); });
+        $this.on("click", "a[href='#moded-conc-add-init']",  function () { AddConcFun("init");  });
+        $this.on("click", "a[href='#moded-conc-rem']", function () {
+            get_model($this).definition.concentrations.splice($(this).closest("tr").data("idx"), 1);
+            render_conc($this);
+        });
+        $this.on("change", ".moded-conc-spc", function () {
+            var idx = $(this).closest("tr").data("idx");
+            var concs = get_model($this).definition.concentrations;
+            concs[idx].species = $(this).val();
+        });
+        $this.on("change", ".moded-conc-cmp", function () {
+            var idx = $(this).closest("tr").data("idx");
+            var concs = get_model($this).definition.concentrations;
+            concs[idx].compartment = $(this).val();
+        });
+        $this.on("change", ".moded-conc-cnt", function () {
+            var idx = $(this).closest("tr").data("idx");
+            var concs = get_model($this).definition.concentrations;
+            concs[idx].concentration = $(this).val();
+        });
+    }
+
+    function render_conc($this) {
+        var model = get_model($this);
+        var spcs = model.definition.species;
+        var cmps = model.definition.compartments;
+        var str = "";
+        var conc = model.definition.concentrations; // temporary property
+        if (conc == null || conc == undefined) {
+            conc = [];
+        }
+        for (var i = 0; i < conc.length; i++) {
+            str += "<tr data-idx='" + i + "'>";
+            str += "<td>";
+            str += "<span class='dropdown'>";
+            str += "<a href='#' class='dropdown-toggle moded-conc-type' data-toggle='dropdown'>";
+            switch (conc[i].type) {
+            case "const": str += "Constant concentration "; break;
+            case "init":  str += "Initial concentration ";  break;
+            }
+            str += "<b class='caret'></b></a>";
+            str += "<ul class='dropdown-menu'>";
+            str += "<li><a href='#moded-conc-rem'>Remove</a></li>";
+            str += "</ul>";
+            str += "</span>";
+            str += "</td>";
+
+            //str += "<td><input type='text' placeholder='Species name'  value='" + conc[i].species +       "' class='moded-conc-spc span3'/></td>";
+            str += "<td><select  class='moded-conc-spc span3' placeholder='Species'>";
+            for (var j = 0; j < spcs.length; j++) {
+                if (conc[i].species == spcs[j].name) {
+                    str += "<option value='" + spcs[j].name + "' selected>" + spcs[j].name + "</option>"
+                } else {
+                    str += "<option value='" + spcs[j].name + "'>" + spcs[j].name + "</option>"
+                }
+            }
+            str += "</select></td>";
+
+            //str += "<td><input type='text' placeholder='Compartment'   value='" + conc[i].domain +        "' class='moded-conc-cmp span3'/></td>";
+            str += "<td><select  class='moded-conc-cmp span3' placeholder='Compartment'>";
+            for (var j = 0; j < cmps.length; j++) {
+                if (conc[i].compartment == cmps[j].name) {
+                    str += "<option value='" + cmps[j].name + "' selected>" + cmps[j].name + "</option>"
+                } else {
+                    str += "<option value='" + cmps[j].name + "'>" + cmps[j].name + "</option>"
+                }
+            }
+            str += "</select></td>";
+
+            str += "<td><input type='text' placeholder='Concentration' value='" + conc[i].concentration + "' class='moded-conc-cnt span2'/></td>";
+            str += "</tr>";
+        }
+        str += "<tr><td colspan='4'>";
+        str += "  <div class='dropdown pull-right'>";
+        str += "    <a href='#' class='btn btn-primary dropdown-toggle' data-toggle='dropdown'>Add new concentration <b class='caret'></b></a>";
+        str += "    <ul class='dropdown-menu' role='menu' aria-labelledby='dLabel'>";
+        str += "      <li><a tabindex='-1' href='#moded-conc-add-const'>Constant</a></li>";
+        str += "      <li><a tabindex='-1' href='#moded-conc-add-init'>Initial</a></li>";
+        str += "    </ul>";
+        str += "  </div>";
+        str += "</td></tr>";
+        $this.find(".moded-conc-table tbody").html(str);
     }
 
     // -------------------------------------------------------------------------
