@@ -111,7 +111,7 @@ div.moded-reaction-michaelis input {
  *  Domain / compartments
  */
 .moded-comp-block {
-    border: 1px solid #e3e3e3;
+    border: 1px solid #666;
     border-radius: 4px;
     box-shadow: insert 0 1px 1px;
     margin-right: 5px;
@@ -122,7 +122,7 @@ div.moded-reaction-michaelis input {
 .moded-comp-block > table > caption  {
     text-align: left;
     font-weight: bold;
-    background-color: #f5f5f5;
+    background-color: #e5e5e5;
     padding-left: 5px;
 }
 
