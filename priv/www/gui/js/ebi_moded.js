@@ -1,8 +1,9 @@
 (function( $ ){
     var compTypes = {
-        "ebi_cdef_solution":        {desc: "Investigated solution", haveThns: true},
+        "ebi_cdef_solution":        {desc: "Investigated solution", haveThns: false},
         "ebi_cdef_diffusive":       {desc: "Diffusive medium",      haveThns: true},
         "ebi_cdef_solid_electrode": {desc: "Solid electrode",       haveThns: false},
+        "ebi_cdef_clark_electrode": {desc: "Clark electrode",       haveThns: false},
         "ebi_cdef_insulating":      {desc: "Insulating film",       haveThns: false}
     };
 
@@ -363,6 +364,7 @@
         $this.on("click", "a[href='#moded-comp-add-solution']",        function () { AddCompFun("ebi_cdef_solution"); });
         $this.on("click", "a[href='#moded-comp-add-diffusive']",       function () { AddCompFun("ebi_cdef_diffusive"); });
         $this.on("click", "a[href='#moded-comp-add-solid_electrode']", function () { AddCompFun("ebi_cdef_solid_electrode"); });
+        $this.on("click", "a[href='#moded-comp-add-clark_electrode']", function () { AddCompFun("ebi_cdef_clark_electrode"); });
         $this.on("click", "a[href='#moded-comp-add-insulating']",      function () { AddCompFun("ebi_cdef_insulating"); });
         $this.on("click", "a[href='#moded-comp-remove']", function () {
             get_model($this).definition.compartments.splice($(this).closest("tr").data("idx"), 1);
@@ -481,6 +483,13 @@
             cdef.el_reaction = reac;
             render_domain($this);
         });
+        $this.on("click", "a[href='#moded-comp-clark-spcs']", function () {
+            var mdef = get_model($this).definition;
+            var cdef = mdef.compartments[$(this).closest("tr.moded_comp").data("idx")].definition;
+            var spcs = $(this).data("spcs");
+            cdef.el_species = spcs;
+            render_domain($this);
+        });
         $this.on("change", ".moded-comp-name", function () {
             var idx = $(this).closest("tr.moded_comp").data("idx");
             get_model($this).definition.compartments[idx].name = $(this).val();
@@ -493,9 +502,6 @@
             var idx = $(this).closest("tr.moded_comp").data("idx");
             var cmp = get_model($this).definition.compartments[idx];
             switch (cmp.type) {
-            case "ebi_cdef_solution":
-                cmp.definition.nernst_thickness = $(this).val();
-                break;
             case "ebi_cdef_diffusive":
                 cmp.definition.thickness = $(this).val();
                 break;
@@ -601,9 +607,6 @@
             str += "<tr><td>";
             str += "    <input type='text' placeholder='Compartment name' value='" + n(c.name) + "' class='moded-comp-name input-medium'/><br>";
             switch (c.type) {
-            case 'ebi_cdef_solution':
-                str += "<input type='text' placeholder='Nernst l. thickness' value='" + n(c.definition.nernst_thickness) + "' class='moded-comp-thns input-medium'/><br>";
-                break;
             case 'ebi_cdef_diffusive':
                 str += "<input type='text' placeholder='Layer thickness' value='" + n(c.definition.thickness) + "' class='moded-comp-thns input-medium'/><br>";
                 break;
@@ -616,12 +619,14 @@
             //  Compartment parameters
             //
             if (c.type == "ebi_cdef_solution") {
-                str += render_compartment_species(model.definition.species, c);
+                //str += render_compartment_species(model.definition.species, c);
             } else if (c.type == "ebi_cdef_diffusive") {
                 str += render_compartment_species(model.definition.species, c);
                 str += render_compartment_reactions(model.definition.reactions, c);
             } else if (c.type == "ebi_cdef_solid_electrode") {
                 str += render_compartment_solel_reaction(model.definition.reactions, c);
+            } else if (c.type == "ebi_cdef_clark_electrode") {
+                str += render_compartment_clark_species(model.definition.species, c);
             } else if (c.type == "ebi_cdef_insulating") {
                 //str += "insulating...";
             } else {
@@ -637,6 +642,7 @@
         str += "      <li><a tabindex='-1' href='#moded-comp-add-solution'        >Investigated solution</a></li>";
         str += "      <li><a tabindex='-1' href='#moded-comp-add-diffusive'       >Diffusive medium</a></li>";
         str += "      <li><a tabindex='-1' href='#moded-comp-add-solid_electrode' >Solid electrode</a></li>";
+        str += "      <li><a tabindex='-1' href='#moded-comp-add-clark_electrode' >Clark electrode</a></li>";
         str += "      <li><a tabindex='-1' href='#moded-comp-add-insulating'      >Insulating film</a></li>";
         str += "    </ul>";
         str += "  </div>";
@@ -788,6 +794,24 @@
         return str;
     }
 
+    function render_compartment_clark_species(species, compartment) {
+        var str = "";
+        str += "<div class='moded-comp-clark-spcs moded-comp-block'><table>";
+        str += "<caption><span class='dropdown'>";
+        str += "<a href='#' class='dropdown-toggle' data-toggle='dropdown'>Detected species <b class='caret'></b></a>";
+        str += "<ul class='dropdown-menu'>";
+        for (var i = 0; i < species.length; i++) {
+            str += "<li><a data-spcs='" + species[i].name + "'";
+            str += "href='#moded-comp-clark-spcs'>Output is generated due to <b>" + species[i].name + "</b></a></li>";
+        }
+        str += "</ul>";
+        str += "</span></caption>";
+        str += "<tbody>";
+        str += "<tr><td>" + n(compartment.definition.el_species) + "</td></tr>";
+        str += "</tbody></tbody></table></div><span class='clearfix'></span></div>";
+        return str;
+    }
+
     // -------------------------------------------------------------------------
     //  Concentrations
     // -------------------------------------------------------------------------
@@ -795,14 +819,14 @@
     function conc_init($this) {
         AddConcFun = function (type) {
             var mdef = get_model($this).definition;
-            var concs = mdef.concentrations;
+            var concs = mdef.rules;
             if (concs == null || concs == undefined) {
-                concs = mdef.concentrations = [];
+                concs = mdef.rules = [];
             }
             concs.push({
                 type: type,
                 species: "",
-                domain: "",
+                compartment: "",
                 concentration: ""
             });
             render_conc($this);
@@ -810,23 +834,26 @@
         $this.on("click", "a[href='#moded-conc-add-const']", function () { AddConcFun("const"); });
         $this.on("click", "a[href='#moded-conc-add-init']",  function () { AddConcFun("init");  });
         $this.on("click", "a[href='#moded-conc-rem']", function () {
-            get_model($this).definition.concentrations.splice($(this).closest("tr").data("idx"), 1);
+            get_model($this).definition.rules.splice($(this).closest("tr").data("idx"), 1);
             render_conc($this);
         });
         $this.on("change", ".moded-conc-spc", function () {
             var idx = $(this).closest("tr").data("idx");
-            var concs = get_model($this).definition.concentrations;
+            var concs = get_model($this).definition.rules;
             concs[idx].species = $(this).val();
+            console.log("moded-conc-spc " + idx + " " + $(this).val());
         });
         $this.on("change", ".moded-conc-cmp", function () {
             var idx = $(this).closest("tr").data("idx");
-            var concs = get_model($this).definition.concentrations;
+            var concs = get_model($this).definition.rules;
             concs[idx].compartment = $(this).val();
+            console.log("moded-conc-cmp " + idx + " " + $(this).val());
         });
         $this.on("change", ".moded-conc-cnt", function () {
             var idx = $(this).closest("tr").data("idx");
-            var concs = get_model($this).definition.concentrations;
+            var concs = get_model($this).definition.rules;
             concs[idx].concentration = $(this).val();
+            console.log("moded-conc-cnt " + idx + " " + $(this).val());
         });
     }
 
@@ -835,7 +862,7 @@
         var spcs = model.definition.species;
         var cmps = model.definition.compartments;
         var str = "";
-        var conc = model.definition.concentrations; // temporary property
+        var conc = model.definition.rules;
         if (conc == null || conc == undefined) {
             conc = [];
         }
@@ -946,22 +973,26 @@
 
     function save($this) {
         var model = get_model($this);
+        var json;
         domain_cond_apply(model);
+        json = JSON.stringify(model);
         if (model.id == null) {
+            console.log("Creating model: " + json);
             $.ajax({
                 type: "POST",
                 url: api_url("model"),
-                data: JSON.stringify(model),
+                data: json,
                 success: function () {
                     ebi_pages_show_main_overview();
                 },
                 dataType: "json"
             });
         } else {
+            console.log("Updating model: " + json);
             $.ajax({
                 type: "PUT",
                 url: api_url("model/" + model.id),
-                data: JSON.stringify(model),
+                data: json,
                 success: function () {
                     ebi_pages_show_main_overview();
                 },

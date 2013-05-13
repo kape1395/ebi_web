@@ -39,11 +39,12 @@ encode(#model{
         {parameters, encode_string_list(Prms)}
     ]};
 
-encode(#ebi_model{species = Species, reactions = Reactions, compartments = Compartments}) ->
+encode(#ebi_model{species = Species, reactions = Reactions, compartments = Compartments, rules = Rules}) ->
     {[
         {species,       encode(Species)},
         {reactions,     encode(Reactions)},
-        {compartments,  encode(Compartments)}
+        {compartments,  encode(Compartments)},
+        {rules,         encode(Rules)}
     ]};
 
 encode(#ebi_species{name = Name, description = Description}) ->
@@ -104,10 +105,9 @@ encode(#ebi_comp_species{species = S, diffusion = D, concentration = C}) ->
         {concentration, encode_string(C)}
     ]};
 
-encode(#ebi_cdef_solution{species = S, nernst_thickness = NT}) ->
+encode(#ebi_cdef_solution{species = S}) ->
     {[
-        {species, encode(S)},
-        {nernst_thickness, encode_string(NT)}
+        {species, encode_string_list(S)}
     ]};
 
 encode(#ebi_cdef_diffusive{species = S, reactions = R, thickness = T}) ->
@@ -124,6 +124,19 @@ encode(#ebi_cdef_insulating{}) ->
 encode(#ebi_cdef_solid_electrode{el_reaction = ER}) ->
     {[
         {el_reaction, encode_string(ER)}
+    ]};
+
+encode(#ebi_cdef_clark_electrode{el_species = ES}) ->
+    {[
+        {el_species, encode_string(ES)}
+    ]};
+
+encode(#ebi_rule{type = T, species = S, compartment = C, concentration = X}) ->
+    {[
+        {type, encode_string(T)},
+        {species, encode_string(S)},
+        {compartment, encode_string(C)},
+        {concentration, encode_string(X)}
     ]}.
 
 
@@ -162,7 +175,8 @@ decode(ebi_model, {PL}) ->
     #ebi_model{
         species      = decode(ebi_species,     proplists:get_value(<<"species">>,      PL, null)),
         reactions    = decode(ebi_reaction,    proplists:get_value(<<"reactions">>,    PL, null)),
-        compartments = decode(ebi_compartment, proplists:get_value(<<"compartments">>, PL, null))
+        compartments = decode(ebi_compartment, proplists:get_value(<<"compartments">>, PL, null)),
+        rules        = decode(ebi_rule,        proplists:get_value(<<"rules">>,        PL, null))
     };
 
 decode(ebi_species, {PL}) ->
@@ -227,8 +241,7 @@ decode(ebi_comp_species, {PL}) ->
 
 decode(ebi_cdef_solution, {PL}) ->
     #ebi_cdef_solution{
-        species          = decode(ebi_comp_species, proplists:get_value(<<"species">>, PL, null)),
-        nernst_thickness = decode_string(proplists:get_value(<<"nernst_thickness">>, PL, null))
+        species = decode_string_list(proplists:get_value(<<"species">>, PL, null))
     };
 
 decode(ebi_cdef_diffusive, {PL}) ->
@@ -244,6 +257,19 @@ decode(ebi_cdef_insulating, {_PL}) ->
 decode(ebi_cdef_solid_electrode, {PL}) ->
     #ebi_cdef_solid_electrode{
         el_reaction = decode_string(proplists:get_value(<<"el_reaction">>, PL, null))
+    };
+
+decode(ebi_cdef_clark_electrode, {PL}) ->
+    #ebi_cdef_clark_electrode{
+        el_species = decode_string(proplists:get_value(<<"el_species">>, PL, null))
+    };
+
+decode(ebi_rule, {PL}) ->
+    #ebi_rule{
+        type = decode_atom(proplists:get_value(<<"type">>, PL, null)),
+        species = decode_string(proplists:get_value(<<"species">>, PL, null)),
+        compartment = decode_string(proplists:get_value(<<"compartment">>, PL, null)),
+        concentration = decode_string(proplists:get_value(<<"concentration">>, PL, null))
     }.
 
 
@@ -260,7 +286,10 @@ encode_string(undefined) ->
     null;
 
 encode_string(Text) when is_list(Text) ->
-    list_to_binary(Text).
+    list_to_binary(Text);
+
+encode_string(Atom) when is_atom(Atom) ->
+    Atom.
 
 
 %%
